@@ -40,14 +40,31 @@ sudo apt install -y "${PKGS[@]}"
 append_to_zshrc "alias fd='fdfind'"
 append_to_zshrc "alias bat='batcat'"
 
-# 3. Shell por defecto a Zsh
-if [[ "$SHELL" != "$(command -v zsh)" ]]; then
-  info "🐚 Cambiando a Zsh..."
-  chsh -s "$(command -v zsh)"
-else
-  info "✅ Zsh ya es shell por defecto."
+# 3. Instalar Zsh y ponerlo como shell por defecto
+ZSH_PATH="$(command -v zsh || true)"
+
+# Si Zsh no está instalado, instálalo
+if [[ -z "$ZSH_PATH" ]]; then
+  info "📥 Instalando Zsh..."
+  sudo apt install -y zsh
+  ZSH_PATH="$(command -v zsh)"
 fi
 
+# Asegúrate de que Zsh esté en /etc/shells
+if ! grep -qxF "$ZSH_PATH" /etc/shells; then
+  info "➕ Agregando $ZSH_PATH a /etc/shells..."
+  echo "$ZSH_PATH" | sudo tee -a /etc/shells > /dev/null
+fi
+
+# Cambiar el shell por defecto si aún no es Zsh
+CURRENT_SHELL="$(getent passwd "$USER" | cut -d: -f7)"
+if [[ "$CURRENT_SHELL" != "$ZSH_PATH" ]]; then
+  info "🐚 Cambiando a Zsh como shell por defecto..."
+  sudo usermod -s "$ZSH_PATH" "$USER"
+  info "✅ Shell cambiado a $ZSH_PATH. Cierra sesión y vuelve a entrar para que surta efecto."
+else
+  info "✅ Zsh ya es tu shell por defecto ($CURRENT_SHELL)."
+fi
 # 4. Oh My Zsh
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
   info "⚙️ Instalando Oh My Zsh..."
