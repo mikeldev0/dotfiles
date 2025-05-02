@@ -5,7 +5,7 @@ Este repositorio contiene la configuración base para entornos de desarrollo y p
 ## Instalación rápida
 
 ```bash
-git clone https://github.com/tuusuario/dotfiles.git ~/.dotfiles
+git clone https://github.com/byronnDev/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ./setup_mint_productividad.sh
 ```
