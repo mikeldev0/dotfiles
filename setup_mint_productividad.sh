@@ -32,7 +32,7 @@ sudo apt update -y > /dev/null 2>&1 && sudo apt upgrade -y > /dev/null 2>&1
 
 # 2. Paquetes esenciales
 info "📥 Instalando paquetes base..."
-PKGS=(zsh curl git fzf fd-find bat ripgrep htop ncdu docker.io docker-compose tig python3-pip fastfetch)
+PKGS=(zsh curl git fzf fd-find bat ripgrep htop ncdu docker.io docker-compose tig python3-pip neofetch)
 sudo apt install -y "${PKGS[@]}" > /dev/null 2>&1
 
 # Alias fd y bat en Mint
@@ -167,7 +167,7 @@ append_to_zshrc 'export PYENV_ROOT="$HOME/.pyenv"'
 append_to_zshrc 'export PATH="$PYENV_ROOT/bin:$PATH"'
 append_to_zshrc 'eval "$(pyenv init --path)"'
 append_to_zshrc 'eval "$(pyenv init -)"'
-append_to_zshrc '# Fastfetch'
-append_to_zshrc 'fastfetch'
+append_to_zshrc '# Neofetch'
+append_to_zshrc 'neofetch'
 
 info "✅ Listo! Reinicia sesión o ejecuta: exec zsh"
