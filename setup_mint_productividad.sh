@@ -1,8 +1,8 @@
-#!/usr/bin/env bash
+\#!/usr/bin/env bash
 
 # -----------------------------------------------------------------------------
 
-# setup\_mint\_productividad.sh – Instalador "a prueba de fallos" para Linux Mint
+# setup\_mint\_productividad.sh – Instalador "a prueba de fallos" para Linux Mint
 
 # -----------------------------------------------------------------------------
 
@@ -27,7 +27,7 @@ info "🔧 Iniciando configuración de entorno productivo en Linux Mint…"
 
 # 1. Actualizaciones del sistema ------------------------------------------------
 
-info "📦 Actualizando sistema (apt update/upgrade)…"
+info "📦 Actualizando sistema (apt update/upgrade)…"
 sudo apt update -y && sudo apt upgrade -y
 
 # 2. Paquetes esenciales --------------------------------------------------------
@@ -50,13 +50,13 @@ else
 info "✅ Zsh ya es el shell por defecto."
 fi
 
-# 4. Oh My Zsh ------------------------------------------------------------------
+# 4. Oh My Zsh ------------------------------------------------------------------
 
 if \[\[ ! -d "\$HOME/.oh-my-zsh" ]]; then
-info "⚙️ Instalando Oh My Zsh…"
+info "⚙️ Instalando Oh My Zsh…"
 RUNZSH=no sh -c "\$(curl -fsSL [https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh](https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh))"
 else
-info "ℹ️ Oh My Zsh ya estaba instalado."
+info "ℹ️ Oh My Zsh ya estaba instalado."
 fi
 
 # 5. Starship --------------------------------------------------------------------
