@@ -30,8 +30,8 @@ Este repositorio contiene:
 
 1. Clona el repositorio:
    ```bash
-   git clone https://github.com/byronnDev/dotfiles.git ~/dotfiles
-   cd ~/dotfiles
+   git clone https://github.com/byronnDev/dotfiles.git ~/.dotfiles
+   cd ~/.dotfiles
    ```
 
 2. Ejecuta el script de setup:
