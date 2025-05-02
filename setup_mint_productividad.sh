@@ -83,38 +83,33 @@ append_to_zshrc 'eval "$(starship init zsh)"'
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 mkdir -p "$ZSH_CUSTOM/plugins"
 
-declare -A plugins=(
-  ["zsh-autosuggestions"]="https://github.com/zsh-users/zsh-autosuggestions"
-  ["zsh-syntax-highlighting"]="https://github.com/zsh-users/zsh-syntax-highlighting"
-  ["you-should-use"]="https://github.com/MichaelAquilina/zsh-you-should-use"
-  ["alias-finder"]="https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/alias-finder"
-  ["zsh-completions"]="https://github.com/zsh-users/zsh-completions"
-  ["history-substring-search"]="https://github.com/zsh-users/zsh-history-substring-search"
-  ["zsh-bat"]="https://github.com/fdellwing/zsh-bat"
+# Lista de plugins a instalar (repositorio → carpeta)
+declare -A ZSH_PLUGINS=(
+  [zsh-autosuggestions]=https://github.com/zsh-users/zsh-autosuggestions
+  [zsh-syntax-highlighting]=https://github.com/zsh-users/zsh-syntax-highlighting
+  [zsh-completions]=https://github.com/zsh-users/zsh-completions
+  [you-should-use]=https://github.com/MichaelAquilina/zsh-you-should-use
+  [alias-finder]=https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/alias-finder
+  [history-substring-search]=https://github.com/zsh-users/zsh-history-substring-search
+  [fzf]=https://github.com/junegunn/fzf
 )
 
-for plugin in "${!plugins[@]}"; do
-  if [[ ! -d "$ZSH_CUSTOM/plugins/$plugin" ]]; then
+for plugin in "${!ZSH_PLUGINS[@]}"; do
+  repo="${ZSH_PLUGINS[$plugin]}"
+  target="$ZSH_CUSTOM/plugins/$plugin"
+  if [[ ! -d "$target" ]]; then
     info "🔌 Instalando plugin: $plugin..."
-    git clone --depth 1 "${plugins[$plugin]}" "$ZSH_CUSTOM/plugins/$plugin" > /dev/null 2>&1
-  else
-    info "ℹ️ Plugin $plugin ya está instalado."
+    git clone --depth 1 "$repo" "$target" > /dev/null 2>&1 || {
+      echo -e "${GREEN}❌ Falló la instalación de $plugin desde $repo${NC}"
+    }
   fi
 done
 
-# Añadir plugins al .zshrc
-if ! grep -q "plugins=(" "$HOME/.zshrc"; then
-  echo "plugins=(git)" >> "$HOME/.zshrc"
+# Aseguramos que .zshrc tenga la línea de plugins correcta
+if ! grep -q "^plugins=" "$HOME/.zshrc"; then
+  echo 'plugins=(git)' >> "$HOME/.zshrc"
 fi
-
-# Lista de plugins a añadir
-PLUGINS_TO_ADD=("zsh-autosuggestions" "zsh-syntax-highlighting" "you-should-use" "alias-finder" "zsh-completions" "history-substring-search" "zsh-bat")
-
-for plugin in "${PLUGINS_TO_ADD[@]}"; do
-  if ! grep -q "$plugin" "$HOME/.zshrc"; then
-    sed -i "s/plugins=(\(.*\))/plugins=(\1 $plugin)/" "$HOME/.zshrc"
-  fi
-done
+sed -i 's/^plugins=.*$/plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-completions you-should-use alias-finder history-substring-search fzf)/' "$HOME/.zshrc"
 
 # 7. Alias personalizados
 info "📝 Añadiendo alias personalizados..."
