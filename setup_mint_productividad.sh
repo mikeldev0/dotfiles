@@ -89,7 +89,6 @@ declare -A ZSH_PLUGINS=(
   [zsh-syntax-highlighting]=https://github.com/zsh-users/zsh-syntax-highlighting
   [zsh-completions]=https://github.com/zsh-users/zsh-completions
   [you-should-use]=https://github.com/MichaelAquilina/zsh-you-should-use
-  [alias-finder]=https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/alias-finder
   [history-substring-search]=https://github.com/zsh-users/zsh-history-substring-search
   [fzf]=https://github.com/junegunn/fzf
 )
@@ -106,10 +105,12 @@ for plugin in "${!ZSH_PLUGINS[@]}"; do
 done
 
 # Aseguramos que .zshrc tenga la línea de plugins correcta
-if ! grep -q "^plugins=" "$HOME/.zshrc"; then
-  echo 'plugins=(git)' >> "$HOME/.zshrc"
+# Incluimos alias-finder directamente, ya que viene con Oh My Zsh
+if grep -q "^plugins=" "$HOME/.zshrc"; then
+  sed -i 's/^plugins=.*$/plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-completions you-should-use alias-finder history-substring-search fzf)/' "$HOME/.zshrc"
+else
+  echo 'plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-completions you-should-use alias-finder history-substring-search fzf)' >> "$HOME/.zshrc"
 fi
-sed -i 's/^plugins=.*$/plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-completions you-should-use alias-finder history-substring-search fzf)/' "$HOME/.zshrc"
 
 # 7. Alias personalizados
 info "📝 Añadiendo alias personalizados..."
