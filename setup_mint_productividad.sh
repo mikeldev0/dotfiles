@@ -77,7 +77,8 @@ if ! grep -q zsh-autosuggestions "$HOME/.zshrc"; then
 fi
 
 # 7. Alias personalizados
-read -r -d '' ALIAS_BLOCK << 'EOF'
+info "📝 Añadiendo alias personalizados..."
+ALIAS_BLOCK="$(cat <<'EOF'
 
 # --- ALIAS PERSONALIZADOS ---
 
@@ -120,6 +121,7 @@ alias nuxtup='cd ~/Proyectos/mi-nuxt && npm run dev'
 # --- FIN ALIAS PERSONALIZADOS ---
 
 EOF
+)"
 
 append_to_zshrc "$ALIAS_BLOCK"
 
