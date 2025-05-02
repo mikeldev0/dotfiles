@@ -82,17 +82,39 @@ append_to_zshrc 'eval "$(starship init zsh)"'
 # 6. Plugins Zsh
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 mkdir -p "$ZSH_CUSTOM/plugins"
-if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]]; then
-  info "🔌 Instalando zsh-autosuggestions..."
-  git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions" > /dev/null 2>&1
+
+declare -A plugins=(
+  ["zsh-autosuggestions"]="https://github.com/zsh-users/zsh-autosuggestions"
+  ["zsh-syntax-highlighting"]="https://github.com/zsh-users/zsh-syntax-highlighting"
+  ["you-should-use"]="https://github.com/MichaelAquilina/zsh-you-should-use"
+  ["alias-finder"]="https://github.com/ohmyzsh/ohmyzsh/tree/master/plugins/alias-finder"
+  ["zsh-completions"]="https://github.com/zsh-users/zsh-completions"
+  ["history-substring-search"]="https://github.com/zsh-users/zsh-history-substring-search"
+  ["zsh-bat"]="https://github.com/fdellwing/zsh-bat"
+)
+
+for plugin in "${!plugins[@]}"; do
+  if [[ ! -d "$ZSH_CUSTOM/plugins/$plugin" ]]; then
+    info "🔌 Instalando plugin: $plugin..."
+    git clone --depth 1 "${plugins[$plugin]}" "$ZSH_CUSTOM/plugins/$plugin" > /dev/null 2>&1
+  else
+    info "ℹ️ Plugin $plugin ya está instalado."
+  fi
+done
+
+# Añadir plugins al .zshrc
+if ! grep -q "plugins=(" "$HOME/.zshrc"; then
+  echo "plugins=(git)" >> "$HOME/.zshrc"
 fi
-if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]]; then
-  info "🔌 Instalando zsh-syntax-highlighting..."
-  git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" > /dev/null 2>&1
-fi
-if ! grep -q zsh-autosuggestions "$HOME/.zshrc"; then
-  sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/' "$HOME/.zshrc"
-fi
+
+# Lista de plugins a añadir
+PLUGINS_TO_ADD=("zsh-autosuggestions" "zsh-syntax-highlighting" "you-should-use" "alias-finder" "zsh-completions" "history-substring-search" "zsh-bat")
+
+for plugin in "${PLUGINS_TO_ADD[@]}"; do
+  if ! grep -q "$plugin" "$HOME/.zshrc"; then
+    sed -i "s/plugins=(\(.*\))/plugins=(\1 $plugin)/" "$HOME/.zshrc"
+  fi
+done
 
 # 7. Alias personalizados
 info "📝 Añadiendo alias personalizados..."
@@ -170,4 +192,4 @@ append_to_zshrc 'eval "$(pyenv init -)"'
 append_to_zshrc '# Neofetch'
 append_to_zshrc 'neofetch'
 
-info "✅ Listo! Reinicia sesión o ejecuta: exec zsh"
+info "✅ ¡Listo! Reinicia sesión o ejecuta: exec zsh"
