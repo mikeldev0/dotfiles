@@ -1,99 +1,87 @@
 #!/usr/bin/env bash
 
-# -----------------------------------------------------------------------------
-
-# setup\_mint\_productividad.sh – Instalador "a prueba de fallos" para Linux Mint
-
-# -----------------------------------------------------------------------------
-
+# -------------------------
+# setup_mint_productividad.sh
+# -------------------------
+# Instalador "a prueba de fallos" para Linux Mint
 # Instala Zsh, Oh-My-Zsh, Starship, plugins, Docker, NVM, Pyenv y utilidades
+# Control estricto de errores y sin duplicar ~/.zshrc
+# -------------------------
 
-# con control estricto de errores y sin duplicar configuraciones en \~/.zshrc.
+set -Eeuo pipefail
+trap 'echo -e "\033[0;31m❌ Error en línea $LINENO → $BASH_COMMAND\033[0m"; exit 1' ERR
 
-# -----------------------------------------------------------------------------
+# Colores
+GREEN='\033[0;32m'
+NC='\033[0m'
 
-set -Eeuo pipefail                           # Abortar en error, var indefinida o pipefail
-trap 'echo -e "\033\[0;31m❌ Error en la línea \$LINENO → \$BASH\_COMMAND\033\[0m"; exit 1' ERR
-
-# Colores para mensajes
-
-GREEN='\033\[0;32m'
-NC='\033\[0m'
-
-# Funciones de ayuda
-
-info() { echo -e "\${GREEN}\$1\${NC}"; }
-append\_to\_zshrc() {
-local line="\$1"
-if ! grep -qxF "\$line" "\$HOME/.zshrc"; then
-echo "\$line" >> "\$HOME/.zshrc"
-fi
+# Funciones
+info() {
+  echo -e "${GREEN}$1${NC}"
 }
 
-# -----------------------------------------------------------------------------
+append_to_zshrc() {
+  local line="$1"
+  grep -qxF "$line" "$HOME/.zshrc" || echo "$line" >> "$HOME/.zshrc"
+}
 
-info "🔧 Iniciando configuración de entorno productivo en Linux Mint…"
+info "🔧 Iniciando setup en Linux Mint..."
 
-# 1. Actualizar sistema --------------------------------------------------------
-
-info "📦 Actualizando sistema (apt update/upgrade)…"
+# 1. Actualizar sistema
+info "📦 Actualizando sistema..."
 sudo apt update -y && sudo apt upgrade -y
 
-# 2. Instalar paquetes esenciales -----------------------------------------------
-
-info "📥 Instalando paquetes base…"
+# 2. Paquetes esenciales
+info "📥 Instalando paquetes base..."
 PKGS=(zsh curl git fzf fd-find bat ripgrep htop ncdu docker.io docker-compose tig python3-pip)
-sudo apt install -y "\${PKGS\[@]}"
+sudo apt install -y "${PKGS[@]}"
 
-# Alias para fd y bat en Mint --------------------------------------------------
+# Alias fd y bat en Mint
+append_to_zshrc "alias fd='fdfind'"
+append_to_zshrc "alias bat='batcat'"
 
-append\_to\_zshrc "alias fd='fdfind'"
-append\_to\_zshrc "alias bat='batcat'"
-
-# 3. Shell por defecto a Zsh ----------------------------------------------------
-
-if \[\[ "\$SHELL" != "\$(command -v zsh)" ]]; then
-info "🐚 Estableciendo Zsh como shell por defecto…"
-chsh -s "\$(command -v zsh)"
+# 3. Shell por defecto a Zsh
+if [[ "$SHELL" != "$(command -v zsh)" ]]; then
+  info "🐚 Cambiando a Zsh..."
+  chsh -s "$(command -v zsh)"
 else
-info "✅ Zsh ya es el shell por defecto."
+  info "✅ Zsh ya es shell por defecto."
 fi
 
-# 4. Instalar Oh My Zsh ---------------------------------------------------------
-
-if \[\[ ! -d "\$HOME/.oh-my-zsh" ]]; then
-info "⚙️ Instalando Oh My Zsh…"
-RUNZSH=no sh -c "\$(curl -fsSL [https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh](https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh))"
+# 4. Oh My Zsh
+if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
+  info "⚙️ Instalando Oh My Zsh..."
+  RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 else
-info "ℹ️ Oh My Zsh ya está instalado."
+  info "ℹ️ Oh My Zsh ya está instalado."
 fi
 
-# 5. Instalar Starship prompt --------------------------------------------------
-
+# 5. Starship prompt
 if ! command -v starship &>/dev/null; then
-info "🚀 Instalando Starship prompt…"
-curl -sS [https://starship.rs/install.sh](https://starship.rs/install.sh) | sh -s -- -y
+  info "🚀 Instalando Starship prompt..."
+  curl -sS https://starship.rs/install.sh | sh -s -- -y
 fi
-append\_to\_zshrc 'eval "\$(starship init zsh)"'
+append_to_zshrc 'eval "$(starship init zsh)"'
 
-# 6. Plugins de Zsh -------------------------------------------------------------
-
-ZSH\_CUSTOM="\${ZSH\_CUSTOM:-\$HOME/.oh-my-zsh/custom}"
-\[\[ -d "\$ZSH\_CUSTOM/plugins" ]] || mkdir -p "\$ZSH\_CUSTOM/plugins"
-\[\[ -d "\$ZSH\_CUSTOM/plugins/zsh-autosuggestions" ]] || git clone --depth 1 [https://github.com/zsh-users/zsh-autosuggestions](https://github.com/zsh-users/zsh-autosuggestions) "\$ZSH\_CUSTOM/plugins/zsh-autosuggestions"
-\[\[ -d "\$ZSH\_CUSTOM/plugins/zsh-syntax-highlighting" ]] || git clone --depth 1 [https://github.com/zsh-users/zsh-syntax-highlighting](https://github.com/zsh-users/zsh-syntax-highlighting) "\$ZSH\_CUSTOM/plugins/zsh-syntax-highlighting"
-if ! grep -q "zsh-autosuggestions" "\$HOME/.zshrc"; then
-sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/' "\$HOME/.zshrc"
+# 6. Plugins Zsh
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+mkdir -p "$ZSH_CUSTOM/plugins"
+if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]]; then
+  git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+fi
+if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]]; then
+  git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+fi
+if ! grep -q zsh-autosuggestions "$HOME/.zshrc"; then
+  sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/' "$HOME/.zshrc"
 fi
 
-# 7. Alias personalizados -------------------------------------------------------
+# 7. Alias personalizados
+read -r -d '' ALIAS_BLOCK << 'EOF'
 
-read -r -d '' ALIAS\_BLOCK << 'EOF'
-
-# --- ALIAS PERSONALIZADOS (añadido por setup\_mint\_productividad) ---
+# --- ALIAS PERSONALIZADOS ---
 
 # Git
-
 alias gs='git status'
 alias ga='git add .'
 alias gc='git commit -m'
@@ -103,10 +91,9 @@ alias gd='git diff'
 alias gco='git checkout'
 alias gb='git branch'
 alias gm='git merge'
-alias gprune='git fetch -p && git branch --merged | grep -v "\*" | xargs -n 1 git branch -d'
+alias gprune='git fetch -p && git branch --merged | grep -v "\*" | xargs -n1 git branch -d'
 
 # Desarrollo
-
 alias serve='php -S localhost:8000'
 alias artisan='php artisan'
 alias sail='./vendor/bin/sail'
@@ -115,64 +102,51 @@ alias build='npm run build'
 alias nuxt='npx nuxi dev'
 
 # Docker
-
 alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
-alias dstop='docker stop \$(docker ps -q)'
-alias drm='docker rm \$(docker ps -aq)'
+alias dstop='docker stop $(docker ps -q)'
+alias drm='docker rm $(docker ps -aq)'
 alias dclean='docker system prune -af'
 
 # Utilidades
-
 alias ll='ls -lah --color=auto'
 alias cls='clear'
-alias fix-perms='sudo chown -R \$USER:\$USER . && find . -type f -exec chmod 644 {} ; && find . -type d -exec chmod 755 {} ;'
+alias fix-perms='sudo chown -R $USER:$USER . && find . -type f -exec chmod 644 {} \; && find . -type d -exec chmod 755 {} \;'
 
 # Rutas
-
-alias proyectos='cd \~/Proyectos'
-alias laravelup='cd \~/Proyectos/mi-laravel && sail up'
-alias nuxtup='cd \~/Proyectos/mi-nuxt && npm run dev'
+alias proyectos='cd ~/Proyectos'
+alias laravelup='cd ~/Proyectos/mi-laravel && sail up'
+alias nuxtup='cd ~/Proyectos/mi-nuxt && npm run dev'
 
 # --- FIN ALIAS PERSONALIZADOS ---
 
 EOF
-append\_to\_zshrc "\$ALIAS\_BLOCK"
 
-# 8. Configurar Docker ----------------------------------------------------------
+append_to_zshrc "$ALIAS_BLOCK"
 
-info "🐳 Configurando Docker (grupo y arranque)…"
+# 8. Docker config
+info "🐳 Configurando Docker..."
 sudo systemctl enable --now docker
 getent group docker >/dev/null || sudo groupadd docker
-sudo usermod -aG docker "\$USER"
+sudo usermod -aG docker "$USER"
 
-# 9. Instalar NVM ---------------------------------------------------------------
-
-if \[\[ ! -d "\$HOME/.nvm" ]]; then
-info "📦 Instalando NVM…"
-curl -o- [https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh](https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh) | bash
+# 9. NVM
+if [[ ! -d "$HOME/.nvm" ]]; then
+  info "📦 Instalando NVM..."
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 fi
-append\_to\_zshrc '
+append_to_zshrc '# NVM config'
+append_to_zshrc 'export NVM_DIR="$HOME/.nvm"'
+append_to_zshrc '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"'
 
-# NVM config
-
-export NVM\_DIR="\$HOME/.nvm"
-\[ -s "\$NVM\_DIR/nvm.sh" ] && . "\$NVM\_DIR/nvm.sh"'
-
-# 10. Instalar Pyenv ------------------------------------------------------------
-
-if \[\[ ! -d "\$HOME/.pyenv" ]]; then
-info "🐍 Instalando pyenv…"
-curl [https://pyenv.run](https://pyenv.run) | bash
+# 10. Pyenv
+if [[ ! -d "$HOME/.pyenv" ]]; then
+  info "🐍 Instalando Pyenv..."
+  curl https://pyenv.run | bash
 fi
-append\_to\_zshrc '
+append_to_zshrc '# Pyenv config'
+append_to_zshrc 'export PYENV_ROOT="$HOME/.pyenv"'
+append_to_zshrc 'export PATH="$PYENV_ROOT/bin:$PATH"'
+append_to_zshrc 'eval "$(pyenv init --path)"'
+append_to_zshrc 'eval "$(pyenv init -)"'
 
-# pyenv config
-
-export PYENV\_ROOT="\$HOME/.pyenv"
-export PATH="\$PYENV\_ROOT/bin:\$PATH"
-eval "\$(pyenv init --path)"
-eval "\$(pyenv init -)"'
-
-# -----------------------------------------------------------------------------
-
-info "✅ Configuración completada. Reinicia la sesión o ejecuta: exec zsh"
+info "✅ Listo! Reinicia sesión o ejecuta: exec zsh"
