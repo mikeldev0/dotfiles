@@ -32,11 +32,6 @@ Este repositorio contiene:
    ```bash
    git clone https://github.com/byronnDev/dotfiles.git ~/.dotfiles
    cd ~/.dotfiles
-   ```
-
-2. Ejecuta el script de setup:
-
-   ```bash
    chmod +x setup_mint_productividad.sh
    ./setup_mint_productividad.sh
    ```
