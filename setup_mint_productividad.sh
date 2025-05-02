@@ -5,7 +5,6 @@
 # -------------------------
 # Instalador "a prueba de fallos" para Linux Mint
 # Instala Zsh, Oh-My-Zsh, Starship, plugins, Docker, NVM, Pyenv y utilidades
-# Control estricto de errores y sin duplicar ~/.zshrc
 # -------------------------
 
 set -Eeuo pipefail
@@ -29,12 +28,12 @@ info "🔧 Iniciando setup en Linux Mint..."
 
 # 1. Actualizar sistema
 info "📦 Actualizando sistema..."
-sudo apt update -y && sudo apt upgrade -y
+sudo apt update -y > /dev/null 2>&1 && sudo apt upgrade -y > /dev/null 2>&1
 
 # 2. Paquetes esenciales
 info "📥 Instalando paquetes base..."
 PKGS=(zsh curl git fzf fd-find bat ripgrep htop ncdu docker.io docker-compose tig python3-pip)
-sudo apt install -y "${PKGS[@]}"
+sudo apt install -y "${PKGS[@]}" > /dev/null 2>&1
 
 # Alias fd y bat en Mint
 append_to_zshrc "alias fd='fdfind'"
@@ -45,17 +44,15 @@ ZSH_PATH="$(command -v zsh || true)"
 
 if [[ -z "$ZSH_PATH" ]]; then
   info "📥 Instalando Zsh..."
-  sudo apt install -y zsh
+  sudo apt install -y zsh > /dev/null 2>&1
   ZSH_PATH="$(command -v zsh)"
 fi
 
-# Asegúrate de que Zsh esté en /etc/shells
 if ! grep -qxF "$ZSH_PATH" /etc/shells; then
   info "➕ Agregando $ZSH_PATH a /etc/shells..."
   echo "$ZSH_PATH" | sudo tee -a /etc/shells > /dev/null
 fi
 
-# Cambiar el shell por defecto si aún no es Zsh
 CURRENT_SHELL="$(getent passwd "$USER" | cut -d: -f7)"
 if [[ "$CURRENT_SHELL" != "$ZSH_PATH" ]]; then
   info "🐚 Cambiando a Zsh como shell por defecto..."
@@ -70,7 +67,7 @@ fi
 # 4. Oh My Zsh
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
   info "⚙️ Instalando Oh My Zsh..."
-  RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" > /dev/null
 else
   info "ℹ️ Oh My Zsh ya está instalado."
 fi
@@ -78,7 +75,7 @@ fi
 # 5. Starship prompt
 if ! command -v starship &>/dev/null; then
   info "🚀 Instalando Starship prompt..."
-  curl -sS https://starship.rs/install.sh | sh -s -- -y
+  curl -sS https://starship.rs/install.sh | sh -s -- -y > /dev/null
 fi
 append_to_zshrc 'eval "$(starship init zsh)"'
 
@@ -86,10 +83,12 @@ append_to_zshrc 'eval "$(starship init zsh)"'
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 mkdir -p "$ZSH_CUSTOM/plugins"
 if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]]; then
-  git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+  info "🔌 Instalando zsh-autosuggestions..."
+  git clone --depth 1 https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions" > /dev/null 2>&1
 fi
 if [[ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]]; then
-  git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+  info "🔌 Instalando zsh-syntax-highlighting..."
+  git clone --depth 1 https://github.com/zsh-users/zsh-syntax-highlighting "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" > /dev/null 2>&1
 fi
 if ! grep -q zsh-autosuggestions "$HOME/.zshrc"; then
   sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/' "$HOME/.zshrc"
@@ -141,19 +140,18 @@ alias nuxtup='cd ~/Proyectos/mi-nuxt && npm run dev'
 
 EOF
 )"
-
 append_to_zshrc "$ALIAS_BLOCK"
 
 # 8. Docker config
 info "🐳 Configurando Docker..."
-sudo systemctl enable --now docker
-getent group docker >/dev/null || sudo groupadd docker
+sudo systemctl enable --now docker > /dev/null 2>&1
+getent group docker >/dev/null || sudo groupadd docker > /dev/null
 sudo usermod -aG docker "$USER"
 
 # 9. NVM
 if [[ ! -d "$HOME/.nvm" ]]; then
   info "📦 Instalando NVM..."
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash > /dev/null
 fi
 append_to_zshrc '# NVM config'
 append_to_zshrc 'export NVM_DIR="$HOME/.nvm"'
@@ -162,7 +160,7 @@ append_to_zshrc '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"'
 # 10. Pyenv
 if [[ ! -d "$HOME/.pyenv" ]]; then
   info "🐍 Instalando Pyenv..."
-  curl https://pyenv.run | bash
+  curl https://pyenv.run | bash > /dev/null
 fi
 append_to_zshrc '# Pyenv config'
 append_to_zshrc 'export PYENV_ROOT="$HOME/.pyenv"'
