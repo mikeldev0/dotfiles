@@ -24,6 +24,7 @@ Este repositorio contiene:
 - `setup_mint_productividad.sh`: Script de instalación y configuración con control de errores.
 - `.zshrc`: Alias, plugins y configuración de Zsh.
 - `.gitignore`: Archivos que no deben subirse al repositorio.
+````
 
 ## Uso
 
@@ -31,7 +32,7 @@ Este repositorio contiene:
    ```bash
    git clone https://github.com/tuusuario/dotfiles.git ~/dotfiles
    cd ~/dotfiles
-````
+   ```
 
 2. Ejecuta el script de setup:
 
