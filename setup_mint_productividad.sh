@@ -264,6 +264,8 @@ if ! grep -qxF "$ZSH_PATH" /etc/shells; then
 fi
 [[ "$(getent passwd "$USER" | cut -d: -f7)" == "$ZSH_PATH" ]] || chsh -s "$ZSH_PATH"
 
+append_line "$HOME/.zshrc" '# ─── NEOFETCH ─────────────────────────────────────────────'
+append_line "$HOME/.zshrc" 'neofetch --w3m --color_blocks off --source all --disable infobar'
 #─── Limpieza ─────────────────────────────────────────────────────────────
 
 log "🧹 Limpiando cachés…"
