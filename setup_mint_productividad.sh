@@ -1,219 +1,156 @@
 #!/usr/bin/env bash
-
-# -------------------------
-# setup_mint_productividad.sh
-# -------------------------
-# Instalador "a prueba de fallos" para Linux Mint
-# Instala Zsh, Oh-My-Zsh, Starship, plugins, Docker, NVM, Pyenv y utilidades
-# -------------------------
+# Linux Mint — Terminal bootstrap script
+# Author: Mikel
+# Purpose: Idempotent, minimal‑noise development environment provisioner.
 
 set -Eeuo pipefail
-trap 'echo -e "\033[0;31m❌ Error en línea $LINENO → $BASH_COMMAND\033[0m"; exit 1' ERR
+IFS=$'\n\t'
 
-# Colores
-GREEN='\033[0;32m'
-NC='\033[0m'
+trap 'echo -e "\033[0;31m❌ Error en línea $LINENO. Consulta el registro.\033[0m" >&2' ERR
 
-# Funciones
-info() {
-  echo -e "${GREEN}$1${NC}"
+log() { printf "\033[0;32m%s\033[0m\n" "$*"; }
+append_line() {
+  local file=$1 line=$2
+  grep -qxF "$line" "$file" || printf '%s\n' "$line" >>"$file"
 }
 
-append_to_zshrc() {
-  local line="$1"
-  grep -qxF "$line" "$HOME/.zshrc" || echo "$line" >> "$HOME/.zshrc"
-}
+log "🔧 Iniciando setup en Linux Mint…"
 
-info "🔧 Iniciando setup en Linux Mint..."
+export DEBIAN_FRONTEND=noninteractive
 
-# 1. Actualizar sistema
-info "📦 Actualizando sistema..."
-sudo apt update -y > /dev/null 2>&1 && sudo apt upgrade -y > /dev/null 2>&1
+log "📦 Actualizando sistema…"
+sudo apt update -y -qq > /dev/null
+sudo apt upgrade -y -qq > /dev/null
 
-# 2. Paquetes esenciales
-info "📥 Instalando paquetes base..."
-PKGS=(zsh curl git fzf fd-find bat ripgrep htop ncdu docker.io docker-compose tig python3-pip neofetch)
-sudo apt install -y "${PKGS[@]}" > /dev/null 2>&1
+log "📥 Instalando paquetes base…"
+PKGS=(
+  zsh curl git fzf fd-find bat ripgrep htop ncdu docker.io docker-compose
+  tig python3-pip neofetch unzip lsd tree jq rename net-tools nmap
+  xclip wl-clipboard zoxide
+)
+sudo apt install -y -qq --no-install-recommends "${PKGS[@]}" > /dev/null
 
-# Alias fd y bat en Mint
-append_to_zshrc "alias fd='fdfind'"
-append_to_zshrc "alias bat='batcat'"
+#─── Dotfiles ────────────────────────────────────────────────────────────
 
-# 3. Instalar Zsh y ponerlo como shell por defecto
-ZSH_PATH="$(command -v zsh || true)"
+touch "$HOME/.zshrc"
 
-if [[ -z "$ZSH_PATH" ]]; then
-  info "📥 Instalando Zsh..."
-  sudo apt install -y zsh > /dev/null 2>&1
-  ZSH_PATH="$(command -v zsh)"
-fi
+#─── Oh My Zsh ───────────────────────────────────────────────────────────
 
-if ! grep -qxF "$ZSH_PATH" /etc/shells; then
-  info "➕ Agregando $ZSH_PATH a /etc/shells..."
-  echo "$ZSH_PATH" | sudo tee -a /etc/shells > /dev/null
-fi
-
-CURRENT_SHELL="$(getent passwd "$USER" | cut -d: -f7)"
-if [[ "$CURRENT_SHELL" != "$ZSH_PATH" ]]; then
-  info "🐚 Cambiando a Zsh como shell por defecto..."
-  sudo usermod -s "$ZSH_PATH" "$USER"
-  info "✅ Shell cambiado a $ZSH_PATH."
-  info "🔄 Reemplazando tu sesión actual por Zsh..."
-  exec zsh
-else
-  info "✅ Zsh ya es tu shell por defecto ($CURRENT_SHELL)."
-fi
-
-# 4. Oh My Zsh
 if [[ ! -d "$HOME/.oh-my-zsh" ]]; then
-  info "⚙️ Instalando Oh My Zsh..."
-  RUNZSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" > /dev/null
-else
-  info "ℹ️ Oh My Zsh ya está instalado."
+  log "⚙️  Instalando Oh‑My‑Zsh…"
+  RUNZSH=no CHSH=no sh -c \
+    "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" >/dev/null 2>&1
 fi
 
-# 5. Starship prompt
-if ! command -v starship &>/dev/null; then
-  info "🚀 Instalando Starship prompt..."
-  curl -sS https://starship.rs/install.sh | sh -s -- -y > /dev/null
+# Copia la plantilla sólo la primera vez
+test -s "$HOME/.zshrc" || cp "$HOME/.oh-my-zsh/templates/zshrc.zsh-template" "$HOME/.zshrc"
+
+#─── Tema ────────────────────────────────────────────────────────────────
+
+if [[ ! -d "$HOME/.oh-my-zsh/custom/themes/powerlevel10k" ]]; then
+  log "✨ Instalando Powerlevel10k…"
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
+    "$HOME/.oh-my-zsh/custom/themes/powerlevel10k" >/dev/null 2>&1
 fi
-append_to_zshrc 'eval "$(starship init zsh)"'
+sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/' "$HOME/.zshrc"
 
-# 6. Plugins Zsh
-ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
-mkdir -p "$ZSH_CUSTOM/plugins"
+#─── Plugins ──────────────────────────────────────────────────────────────
 
-# Lista de plugins a instalar (repositorio → carpeta)
-declare -A ZSH_PLUGINS=(
+ZSH_CUSTOM=${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}
+declare -A REPOS=(
   [zsh-autosuggestions]=https://github.com/zsh-users/zsh-autosuggestions
   [zsh-syntax-highlighting]=https://github.com/zsh-users/zsh-syntax-highlighting
   [zsh-completions]=https://github.com/zsh-users/zsh-completions
-  [you-should-use]=https://github.com/MichaelAquilina/zsh-you-should-use
   [history-substring-search]=https://github.com/zsh-users/zsh-history-substring-search
-  [fzf]=https://github.com/junegunn/fzf
 )
-
-for plugin in "${!ZSH_PLUGINS[@]}"; do
-  repo="${ZSH_PLUGINS[$plugin]}"
-  target="$ZSH_CUSTOM/plugins/$plugin"
-  if [[ ! -d "$target" ]]; then
-    info "🔌 Instalando plugin: $plugin..."
-    git clone --depth 1 "$repo" "$target" > /dev/null 2>&1 || {
-      echo -e "${GREEN}❌ Falló la instalación de $plugin desde $repo${NC}"
-    }
-  fi
+for p in "${!REPOS[@]}"; do
+  [[ -d "$ZSH_CUSTOM/plugins/$p" ]] || {
+    log "🔌 Instalando plugin: $p…"
+    git clone --depth=1 "${REPOS[$p]}" "$ZSH_CUSTOM/plugins/$p" >/dev/null 2>&1
+  }
 done
 
-# Aseguramos que .zshrc tenga la línea de plugins correcta
-# Incluimos alias-finder directamente, ya que viene con Oh My Zsh
-if grep -q "^plugins=" "$HOME/.zshrc"; then
-  sed -i 's/^plugins=.*$/plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-completions you-should-use alias-finder history-substring-search fzf)/' "$HOME/.zshrc"
+# Instalación de bindings de fzf (provee completado y Ctrl‑T)
+FZF_INSTALL_SCRIPT="$(dpkg -L fzf | grep -m1 install || true)"
+if [[ -x "$FZF_INSTALL_SCRIPT" ]]; then
+  "$FZF_INSTALL_SCRIPT" --key-bindings --completion --no-update-rc >/dev/null 2>&1
+fi
+
+# Lista de plugins (idempotente)
+PLUGIN_LINE='plugins=(git fzf zsh-autosuggestions zsh-syntax-highlighting zsh-completions history-substring-search zoxide)'
+if grep -q '^plugins=' "$HOME/.zshrc"; then
+  sed -i "s/^plugins=.*/$PLUGIN_LINE/" "$HOME/.zshrc"
 else
-  echo 'plugins=(git zsh-autosuggestions zsh-syntax-highlighting zsh-completions you-should-use alias-finder history-substring-search fzf)' >> "$HOME/.zshrc"
+  append_line "$HOME/.zshrc" "$PLUGIN_LINE"
 fi
 
-# 7. Alias personalizados
-info "📝 Añadiendo alias personalizados..."
-ALIAS_BLOCK="$(cat <<'EOF'
+#─── Aliases & helpers ────────────────────────────────────────────────────
 
-# --- ALIAS PERSONALIZADOS ---
+append_line "$HOME/.zshrc" "alias fd='fdfind'"
+append_line "$HOME/.zshrc" "alias bat='batcat'"
+append_line "$HOME/.zshrc" "alias ls='lsd -lah'"
+append_line "$HOME/.zshrc" 'export PATH="$HOME/.local/bin:$PATH"'
+append_line "$HOME/.zshrc" 'eval "$(zoxide init zsh)"'
 
-# Git
-alias gs='git status'
-alias ga='git add .'
-alias gc='git commit -m'
-alias gp='git push'
-alias gl='git log --oneline --graph --decorate'
-alias gd='git diff'
-alias gco='git checkout'
-alias gb='git branch'
-alias gm='git merge'
-alias gprune='git fetch -p && git branch --merged | grep -v "\*" | xargs -n1 git branch -d'
+# extract() helper
+extract_f='extract() { [[ -f "$1" ]] || { echo "Archivo no encontrado: $1" >&2; return 1; }; case "$1" in *.tar.bz2) tar xjf "$1";; *.tar.gz) tar xzf "$1";; *.bz2) bunzip2 "$1";; *.rar) unrar x "$1";; *.gz) gunzip "$1";; *.tar) tar xf "$1";; *.tbz2) tar xjf "$1";; *.tgz) tar xzf "$1";; *.zip) unzip "$1";; *) echo "Formato no soportado: $1";; esac }'
+append_line "$HOME/.zshrc" "$extract_f"
 
-# Desarrollo
-alias serve='php -S localhost:8000'
-alias artisan='php artisan'
-alias sail='./vendor/bin/sail'
-alias dev='npm run dev'
-alias build='npm run build'
-alias nuxt='npx nuxi dev'
+# Git & utilidades
+for a in \
+  "alias gs='git status'" "alias ga='git add .'" "alias gc='git commit -m'" \
+  "alias gp='git push'" "alias gl='git log --oneline --graph --decorate'" \
+  "alias gd='git diff'" "alias cls='clear'" "alias src='source ~/.zshrc'"; do
+  append_line "$HOME/.zshrc" "$a"
+done
 
-# Docker
-alias dps='docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"'
-alias dstop='docker stop $(docker ps -q)'
-alias drm='docker rm $(docker ps -aq)'
-alias dclean='docker system prune -af'
+#─── Docker ───────────────────────────────────────────────────────────────
 
-# Utilidades
-alias ll='ls -lah --color=auto'
-alias cls='clear'
-alias fix-perms='sudo chown -R $USER:$USER . && find . -type f -exec chmod 644 {} \; && find . -type d -exec chmod 755 {} \;'
+log "🐳 Configurando Docker…"
+sudo systemctl enable --now docker >/dev/null 2>&1
+sudo usermod -aG docker "$USER" || true
 
-# Rutas
-alias proyectos='cd ~/Proyectos'
-alias laravelup='cd ~/Proyectos/mi-laravel && sail up'
-alias nuxtup='cd ~/Proyectos/mi-nuxt && npm run dev'
+#─── NVM ───────────────────────────────────────────────────────────────────
 
-# --- FIN ALIAS PERSONALIZADOS ---
-
-EOF
-)"
-append_to_zshrc "$ALIAS_BLOCK"
-
-# 8. Docker config
-info "🐳 Configurando Docker..."
-sudo systemctl enable --now docker > /dev/null 2>&1
-getent group docker >/dev/null || sudo groupadd docker > /dev/null
-sudo usermod -aG docker "$USER"
-
-# 9. NVM
 if [[ ! -d "$HOME/.nvm" ]]; then
-  info "📦 Instalando NVM..."
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash > /dev/null
+  log "📦 Instalando NVM…"
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash >/dev/null 2>&1
 fi
-append_to_zshrc '# NVM config'
-append_to_zshrc 'export NVM_DIR="$HOME/.nvm"'
-append_to_zshrc '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"'
+append_line "$HOME/.zshrc" 'export NVM_DIR="$HOME/.nvm"'
+append_line "$HOME/.zshrc" '[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"'
 
-# 10. Pyenv
+#─── Pyenv ────────────────────────────────────────────────────────────────
+
 if [[ ! -d "$HOME/.pyenv" ]]; then
-  info "🐍 Instalando Pyenv..."
-  curl https://pyenv.run | bash > /dev/null
+  log "🐍 Instalando Pyenv…"
+  curl https://pyenv.run | bash >/dev/null 2>&1
 fi
-append_to_zshrc '# Pyenv config'
-append_to_zshrc 'export PYENV_ROOT="$HOME/.pyenv"'
-append_to_zshrc 'export PATH="$PYENV_ROOT/bin:$PATH"'
-append_to_zshrc 'eval "$(pyenv init --path)"'
-append_to_zshrc 'eval "$(pyenv init -)"'
-append_to_zshrc '# Neofetch'
-append_to_zshrc 'neofetch'
+append_line "$HOME/.zshrc" 'export PYENV_ROOT="$HOME/.pyenv"'
+append_line "$HOME/.zshrc" 'export PATH="$PYENV_ROOT/bin:$PATH"'
+append_line "$HOME/.zshrc" 'eval "$(pyenv init --path)"'
+append_line "$HOME/.zshrc" 'eval "$(pyenv init -)"'
 
-# 11. LSD - ls moderno con iconos
-if ! command -v lsd &>/dev/null; then
-  info "📦 Instalando LSD (ls moderno)..."
-  sudo apt install -y lsd > /dev/null 2>&1 || {
-    info "⚠️ LSD no está en los repos. Instalando vía cargo..."
-    if ! command -v cargo &>/dev/null; then
-      info "📦 Instalando Rust (para cargo)..."
-      curl https://sh.rustup.rs -sSf | sh -s -- -y > /dev/null
-      source "$HOME/.cargo/env"
-    fi
-    cargo install lsd > /dev/null 2>&1
-  }
-fi
-append_to_zshrc "alias ls='lsd'"
+#─── Nerd Font ────────────────────────────────────────────────────────────
 
-# 12. Nerd Font Hack
-info "🔤 Instalando Hack Nerd Font..."
+log "🔤 Instalando Hack Nerd Font…"
 FONT_DIR="$HOME/.local/share/fonts"
-HACK_ZIP="Hack.zip"
 mkdir -p "$FONT_DIR"
-cd /tmp
-curl -fLo "$HACK_ZIP" https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip > /dev/null 2>&1
-unzip -qo "$HACK_ZIP" -d "$FONT_DIR"
-fc-cache -fv > /dev/null 2>&1
-info "🔠 Fuente 'Hack Nerd Font' instalada. Configúrala en tu terminal."
+curl -Lf --retry 3 -o "/tmp/Hack.zip" \
+  https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip >/dev/null 2>&1
+unzip -qo "/tmp/Hack.zip" -d "$FONT_DIR"
+fc-cache -f >/dev/null 2>&1
 
-cd "$HOME" # volver al home por si el script continúa
+#─── Shell predeterminada ─────────────────────────────────────────────────
 
-info "✅ ¡Listo! Reinicia sesión o ejecuta: exec zsh"
+ZSH_PATH=$(command -v zsh)
+if ! grep -qxF "$ZSH_PATH" /etc/shells; then
+  echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null
+fi
+[[ "$(getent passwd "$USER" | cut -d: -f7)" == "$ZSH_PATH" ]] || chsh -s "$ZSH_PATH"
+
+#─── Limpieza ─────────────────────────────────────────────────────────────
+
+log "🧹 Limpiando cachés…"
+rm -f "$HOME/.zcompdump*" /tmp/Hack.zip
+
+log "✅ ¡Terminal lista! Ejecuta: exec zsh (o reinicia sesión) para aplicar cambios."
