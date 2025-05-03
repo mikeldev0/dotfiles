@@ -188,4 +188,32 @@ append_to_zshrc 'eval "$(pyenv init -)"'
 append_to_zshrc '# Neofetch'
 append_to_zshrc 'neofetch'
 
+# 11. LSD - ls moderno con iconos
+if ! command -v lsd &>/dev/null; then
+  info "📦 Instalando LSD (ls moderno)..."
+  sudo apt install -y lsd > /dev/null 2>&1 || {
+    info "⚠️ LSD no está en los repos. Instalando vía cargo..."
+    if ! command -v cargo &>/dev/null; then
+      info "📦 Instalando Rust (para cargo)..."
+      curl https://sh.rustup.rs -sSf | sh -s -- -y > /dev/null
+      source "$HOME/.cargo/env"
+    fi
+    cargo install lsd > /dev/null 2>&1
+  }
+fi
+append_to_zshrc "alias ls='lsd'"
+
+# 12. Nerd Font Hack
+info "🔤 Instalando Hack Nerd Font..."
+FONT_DIR="$HOME/.local/share/fonts"
+HACK_ZIP="Hack.zip"
+mkdir -p "$FONT_DIR"
+cd /tmp
+curl -fLo "$HACK_ZIP" https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Hack.zip > /dev/null 2>&1
+unzip -qo "$HACK_ZIP" -d "$FONT_DIR"
+fc-cache -fv > /dev/null 2>&1
+info "🔠 Fuente 'Hack Nerd Font' instalada. Configúrala en tu terminal."
+
+cd "$HOME" # volver al home por si el script continúa
+
 info "✅ ¡Listo! Reinicia sesión o ejecuta: exec zsh"
