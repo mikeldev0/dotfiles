@@ -94,19 +94,47 @@ done
 # --- Construir lista de plugins verificados ---
 DESIRED_PLUGINS=(
   git fzf zsh-completions history-substring-search zoxide sudo docker
-  docker-compose colored-man-pages systemd copyfile
+  docker-compose colored-man-pages systemd copyfile alias-finder
+  zsh-syntax-highlighting zsh-autosuggestions
 )
 FOUND_PLUGINS=()
 OMZ_PLUGINS_DIR="$HOME/.oh-my-zsh/plugins"
 CUSTOM_PLUGINS_DIR="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins"
 
+# Helper function to check if a plugin is defined for custom installation
+is_custom_plugin() {
+  [[ -v REPOS[$1] ]]
+}
+
 for p in "${DESIRED_PLUGINS[@]}"; do
-  if [[ -d "$OMZ_PLUGINS_DIR/$p" || -d "$CUSTOM_PLUGINS_DIR/$p" ]]; then
+  plugin_path_omz="$OMZ_PLUGINS_DIR/$p"
+  plugin_path_custom="$CUSTOM_PLUGINS_DIR/$p"
+
+  # Check if the plugin directory exists (standard or custom)
+  if [[ -d "$plugin_path_omz" || -d "$plugin_path_custom" ]]; then
+    FOUND_PLUGINS+=("$p")
+  # If it doesn't exist, check if it's supposed to be a standard plugin
+  elif ! is_custom_plugin "$p"; then
+    # Assume standard plugins *should* exist after OMZ install. Add it but warn.
+    log "⚠️ Directorio del plugin estándar '$p' no encontrado en '$plugin_path_omz'. Se incluirá de todos modos."
     FOUND_PLUGINS+=("$p")
   else
-    log "⚠️ Plugin '$p' no encontrado, omitiendo."
+    # It's a custom plugin (or unknown) and wasn't found/installed
+    log "⚠️ Plugin '$p' no encontrado y no es instalable automáticamente, omitiendo."
   fi
 done
+
+# Asegurar que zsh-syntax-highlighting esté al final si está presente
+SYNTAX_HIGHLIGHTING="zsh-syntax-highlighting"
+if [[ " ${FOUND_PLUGINS[*]} " =~ " ${SYNTAX_HIGHLIGHTING} " ]]; then
+  # Eliminarlo de la lista actual
+  temp_plugins=()
+  for p in "${FOUND_PLUGINS[@]}"; do
+    [[ "$p" != "$SYNTAX_HIGHLIGHTING" ]] && temp_plugins+=("$p")
+  done
+  # Añadirlo al final
+  FOUND_PLUGINS=("${temp_plugins[@]}" "$SYNTAX_HIGHLIGHTING")
+fi
 
 # Modificar la línea de plugins existente o añadirla con los plugins encontrados
 PLUGINS_STR=$(IFS=' '; echo "${FOUND_PLUGINS[*]}") # Convertir array a string
@@ -165,6 +193,7 @@ append_line "$HOME/.zshrc" "alias myippub='curl -s ipinfo.io | jq -r \".ip + \\\
 append_line "$HOME/.zshrc" "alias ports='sudo lsof -i -P -n | grep LISTEN'"
 append_line "$HOME/.zshrc" "alias pingg='ping google.com'"
 append_line "$HOME/.zshrc" "alias alert='notify-send --urgency=low -i terminal Terminal Finished'"
+append_line "$HOME/.zshrc" "alias plugins='echo Activos: \$(grep -E \"^plugins=\" ~/.zshrc | sed \"s/^plugins=(//;s/)//\") && echo Instalados: \$(ls -1 \"\${ZSH_CUSTOM:-\$HOME/.oh-my-zsh/custom}/plugins\" \"\$HOME/.oh-my-zsh/plugins\" 2>/dev/null | sort -u | tr \"\\n\" \" \")'"
 
 append_line "$HOME/.zshrc" ''
 append_line "$HOME/.zshrc" '# ─── EXTRACT FUNCTION ─────────────────────────────────────'
@@ -188,11 +217,6 @@ append_line "$HOME/.zshrc" 'export FZF_DEFAULT_COMMAND="fd --type f --hidden --f
 append_line "$HOME/.zshrc" 'export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"'
 append_line "$HOME/.zshrc" 'export FZF_ALT_C_COMMAND="fd --type d --hidden --follow --exclude .git"'
 append_line "$HOME/.zshrc" '[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh'
-
-append_line "$HOME/.zshrc" ''
-append_line "$HOME/.zshrc" '# ─── PLUGINS MANUALES (OMZ los gestiona si están en la lista `plugins=()`) ───'
-append_line "$HOME/.zshrc" 'source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh'
-append_line "$HOME/.zshrc" 'source ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh'
 
 append_line "$HOME/.zshrc" ''
 append_line "$HOME/.zshrc" '# ─── POWERLEVEL10K CONFIG ─────────────────────────────────'
