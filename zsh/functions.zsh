@@ -20,8 +20,8 @@ extract() {
 # Ejecuta un comando y lanza una notificación según el resultado
 notify_when_done() {
   "$@"
-  local status=$?
-  if [[ $status -eq 0 ]]; then
+  local cmd_status=$?
+  if [[ $cmd_status -eq 0 ]]; then
     notify-send --urgency=low -i dialog-information "✅ Comando finalizado con éxito"
   else
     notify-send --urgency=critical -i dialog-error "❌ Error al ejecutar: $*"
