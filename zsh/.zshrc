@@ -1,7 +1,6 @@
 # ─── NEOFETCH ─────────────────────────────────────────────
 neofetch --w3m --color_blocks off --source all --disable infobar
 
-
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
 # confirmations, etc.) must go above this block; everything else may go below.
@@ -165,3 +164,19 @@ export FZF_ALT_C_COMMAND="fd --type d --hidden --follow --exclude .git"
 
 # ─── POWERLEVEL10K CONFIG ─────────────────────────────────
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+export PATH="$PATH:/opt/mssql-tools/bin"
+
+# Cargo in path to lsd
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# Aliases para iniciar y detener TPC
+alias tpc-start='
+  cd ~/proyectos/tpc-front && npm run dev > /tmp/tpc-front.log 2>&1 & echo $! > /tmp/tpc-front.pid &&
+  cd ~/proyectos/tpc-api && php artisan serve > /tmp/tpc-api.log 2>&1 & echo $! > /tmp/tpc-api.pid &&
+  echo "TPC iniciado. Logs en /tmp/tpc-*.log"
+'
+
+alias tpc-stop='
+  kill $(cat /tmp/tpc-front.pid) 2>/dev/null && rm /tmp/tpc-front.pid && echo "Frontend detenido." || echo "No se pudo detener frontend."
+  kill $(cat /tmp/tpc-api.pid) 2>/dev/null && rm /tmp/tpc-api.pid && echo "Backend detenido." || echo "No se pudo detener backend."
+'
