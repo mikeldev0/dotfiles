@@ -1,6 +1,3 @@
-# ─── NEOFETCH (solo si terminal interactiva) ──────────────
-[[ $- == *i* ]] && neofetch --w3m --color_blocks off --source all --disable infobar
-
 # ─── POWERLEVEL10K INSTANT PROMPT ─────────────────────────
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -13,6 +10,7 @@ if [[ ! -d "$ZINIT_HOME" ]]; then
   git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
 fi
 source "${ZINIT_HOME}/zinit.zsh"
+unalias zi 2>/dev/null
 
 # ─── POWERLEVEL10K (tema de prompt) ───────────────────────
 zinit ice depth=1; zinit light romkatv/powerlevel10k
@@ -91,6 +89,10 @@ setopt hist_ignore_all_dups
 setopt hist_save_no_dups
 setopt hist_ignore_dups
 setopt hist_find_no_dups
+
+# ─── NEOFETCH (solo si terminal interactiva) ──────────────
+alias neofetch='neofetch --jp2a ~/Imágenes/codetec.png --size 550 --color_blocks off --disable infobar'
+neofetch
 
 # ─── ALIASES ──────────────────────────────────────────────
 [[ -f ~/.dotfiles/zsh/aliases.zsh ]] && source ~/.dotfiles/zsh/aliases.zsh
