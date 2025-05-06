@@ -1,173 +1,105 @@
-# ─── NEOFETCH ─────────────────────────────────────────────
-alias neofetch='neofetch --jp2a ~/Imágenes/codetec.png --size 550 --color_blocks off --disable infobar'
-neofetch
+# ─── NEOFETCH (solo si terminal interactiva) ──────────────
+[[ $- == *i* ]] && neofetch --w3m --color_blocks off --source all --disable infobar
 
-# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
-# Initialization code that may require console input (password prompts, [y/n]
-# confirmations, etc.) must go above this block; everything else may go below.
+# ─── POWERLEVEL10K INSTANT PROMPT ─────────────────────────
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
 
-# Path to your Oh My Zsh installation.
-export ZSH="$HOME/.oh-my-zsh"
+# ─── ZINIT (gestor de plugins) ────────────────────────────
+ZINIT_HOME="${XDG_DATA_HOME:-$HOME/.local/share}/zinit/zinit.git"
+if [[ ! -d "$ZINIT_HOME" ]]; then
+  mkdir -p "$(dirname "$ZINIT_HOME")"
+  git clone https://github.com/zdharma-continuum/zinit.git "$ZINIT_HOME"
+fi
+source "${ZINIT_HOME}/zinit.zsh"
 
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time Oh My Zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="powerlevel10k/powerlevel10k"
+# ─── POWERLEVEL10K (tema de prompt) ───────────────────────
+zinit ice depth=1; zinit light romkatv/powerlevel10k
 
-# Set list of themes to pick from when loading at random
-# Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in $ZSH/themes/
-# If set to an empty array, this variable will have no effect.
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
+# ─── PLUGINS ──────────────────────────────────────────────
+zinit wait lucid for \
+  zsh-users/zsh-syntax-highlighting \
+  zsh-users/zsh-completions \
+  zsh-users/zsh-autosuggestions \
+  Aloxaf/fzf-tab \
+  MichaelAquilina/zsh-you-should-use \
+  hlissner/zsh-autopair \
+  lukechilds/zsh-better-npm-completion \
+  changyuheng/zsh-interactive-cd \
+  zdharma-continuum/history-search-multi-word \
+  lukechilds/zsh-nvm
 
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
+# ─── SNIPPETS OH-MY-ZSH (sin cargar OMZ completo) ─────────
+zinit snippet OMZL::git.zsh
+zinit snippet OMZP::git
+zinit snippet OMZP::sudo
+#zinit snippet OMZP::archlinux
+zinit snippet OMZP::command-not-found
+zinit snippet OMZP::systemd
+zinit snippet OMZP::colored-man-pages
 
-# Uncomment the following line to use hyphen-insensitive completion.
-# Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
-
-# Uncomment one of the following lines to change the auto-update behavior
-# zstyle ':omz:update' mode disabled  # disable automatic updates
-# zstyle ':omz:update' mode auto      # update automatically without asking
-# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
-
-# Uncomment the following line to change how often to auto-update (in days).
-# zstyle ':omz:update' frequency 13
-
-# Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS="true"
-
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# You can also set it to another string to have that shown instead of the default red dots.
-# e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
-# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# You can set one of the optional three formats:
-# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# or set a custom format using the strftime function format specifications,
-# see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Which plugins would you like to load?
-# Standard plugins can be found in $ZSH/plugins/
-# Custom plugins may be added to $ZSH_CUSTOM/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(git fzf zsh-completions history-substring-search zoxide sudo docker docker-compose colored-man-pages systemd copyfile alias-finder zsh-syntax-highlighting zsh-autosuggestions)
-
-source $ZSH/oh-my-zsh.sh
-
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='nvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch $(uname -m)"
-
-# Set personal aliases, overriding those provided by Oh My Zsh libs,
-# plugins, and themes. Aliases can be placed here, though Oh My Zsh
-# users are encouraged to define aliases within a top-level file in
-# the $ZSH_CUSTOM folder, with .zsh extension. Examples:
-# - $ZSH_CUSTOM/aliases.zsh
-# - $ZSH_CUSTOM/macos.zsh
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-
-# ─── STARSHIP PROMPT ─────────────────────────────────────
-eval "$(starship init zsh)" # Descomentar si se prefiere Starship
-
-# ─── ZOXIDE ───────────────────────────────────────────────
+# ─── ZOXIDE (cd mejorado con fzf) ─────────────────────────
+zinit light ajeetdsouza/zoxide
 eval "$(zoxide init zsh)"
 
-# ─── ALIASES BÁSICOS ─────────────────────────────────────
-alias fd='fdfind'
-alias bat='batcat'
-alias ls='lsd'
+# ─── FZF (búsqueda rápida en ficheros/carpetas) ───────────
+zinit light junegunn/fzf
+zinit snippet https://github.com/junegunn/fzf/blob/master/shell/key-bindings.zsh
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
 
-# ─── ALIASES GIT ────────────────────────────────────────
-alias gs='git status'
-alias ga='git add .'
-alias gc='git commit -m'
-alias gp='git push'
-alias gl='git log --oneline --graph --decorate'
-alias gd='git diff'
-
-# ─── ALIASES VARIOS ─────────────────────────────────────
-alias ll='lsd -lah'
-alias cls='clear'
-alias md='mkdir -p'
-alias src='source ~/.zshrc'
-alias myip='ip a | grep inet'
-alias myippub='curl -s ipinfo.io | jq -r ".ip + \" (\" + .city + \", \" + .country + \")\nISP: \" + .org + \"\nLoc: \" + .loc + \"\nHostname: \" + .hostname + \"\nTimezone: \" + .timezone"'
-alias ports='sudo lsof -i -P -n | grep LISTEN'
-alias pingg='ping google.com'
-alias alert='notify-send --urgency=low -i terminal Terminal Finished'
-alias plugins='echo Activos: $(grep -E "^plugins=" ~/.zshrc | sed "s/^plugins=(//;s/)//") && echo Instalados: $(ls -1 "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins" "$HOME/.oh-my-zsh/plugins" 2>/dev/null | sort -u | tr "\n" " ")'
-
-# ─── EXTRACT FUNCTION ─────────────────────────────────────
-extract() { [[ -f "$1" ]] || { echo "Archivo no encontrado: $1" >&2; return 1; }; case "$1" in *.tar.bz2) tar xjf "$1";; *.tar.gz) tar xzf "$1";; *.bz2) bunzip2 "$1";; *.rar) unrar x "$1";; *.gz) gunzip "$1";; *.tar) tar xf "$1";; *.tbz2) tar xjf "$1";; *.tgz) tar xzf "$1";; *.zip) unzip "$1";; *) echo "Formato no soportado: $1";; esac }
-
-# ─── NVM ──────────────────────────────────────────────────
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
-
-# ─── PYENV ────────────────────────────────────────────────
+# ─── PYENV (versiones de Python) ──────────────────────────
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
+command -v pyenv &>/dev/null && {
+  eval "$(pyenv init --path)"
+  eval "$(pyenv init -)"
+}
 
-# ─── FZF ──────────────────────────────────────────────────
-export FZF_DEFAULT_COMMAND="fd --type f --hidden --follow --exclude .git"
-export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_ALT_C_COMMAND="fd --type d --hidden --follow --exclude .git"
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# ─── NVM (versiones de Node.js, ya gestionado por plugin) ─
+export NVM_DIR="$HOME/.nvm"
+
+# ─── COMPINIT (completado inteligente) ────────────────────
+autoload -Uz compinit && compinit -C
+
+# ─── COMPLETIONS Y FZF-TAB ────────────────────────────────
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Za-z}'
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zstyle ':completion:*' menu no
+zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
+zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
+
+# ─── KEYBINDINGS (atajos de teclado) ──────────────────────
+bindkey -e                          # modo emacs
+bindkey '^p' history-search-backward
+bindkey '^n' history-search-forward
+bindkey '^[w' kill-region
+
+# ─── HISTORIA DEL SHELL ──────────────────────────────────
+HISTSIZE=5000
+SAVEHIST=$HISTSIZE
+export HISTFILE="${XDG_STATE_HOME:-$HOME/.local/state}/zsh/history"
+mkdir -p "$(dirname "$HISTFILE")"
+touch "$HISTFILE"
+
+setopt appendhistory
+setopt sharehistory
+setopt hist_ignore_space
+setopt hist_ignore_all_dups
+setopt hist_save_no_dups
+setopt hist_ignore_dups
+setopt hist_find_no_dups
+
+# ─── ALIASES ──────────────────────────────────────────────
+[[ -f ~/.dotfiles/zsh/aliases.zsh ]] && source ~/.dotfiles/zsh/aliases.zsh
+
+# ─── FUNCIONES ────────────────────────────────────────────
+[[ -f ~/.dotfiles/zsh/functions.zsh ]] && source ~/.dotfiles/zsh/functions.zsh
+
+# ─── EXTRA PATHS ──────────────────────────────────────────
+export PATH="${PATH:+$PATH:}/opt/mssql-tools/bin:$HOME/.cargo/bin"
 
 # ─── POWERLEVEL10K CONFIG ─────────────────────────────────
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-export PATH="$PATH:/opt/mssql-tools/bin"
-
-# Cargo in path to lsd
-export PATH="$HOME/.cargo/bin:$PATH"
-
-alias vim=nvim
+[[ -f ~/.dotfiles/zsh/.p10k.zsh ]] && source ~/.dotfiles/zsh/.p10k.zsh
