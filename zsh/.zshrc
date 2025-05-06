@@ -1,5 +1,6 @@
 # ─── NEOFETCH ─────────────────────────────────────────────
-neofetch --w3m --color_blocks off --source all --disable infobar
+alias neofetch='neofetch --jp2a ~/Imágenes/codetec.png --size 550 --color_blocks off --disable infobar'
+neofetch
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # Initialization code that may require console input (password prompts, [y/n]
@@ -169,14 +170,4 @@ export PATH="$PATH:/opt/mssql-tools/bin"
 # Cargo in path to lsd
 export PATH="$HOME/.cargo/bin:$PATH"
 
-# Aliases para iniciar y detener TPC
-alias tpc-start='
-  cd ~/proyectos/tpc-front && npm run dev > /tmp/tpc-front.log 2>&1 & echo $! > /tmp/tpc-front.pid &&
-  cd ~/proyectos/tpc-api && php artisan serve > /tmp/tpc-api.log 2>&1 & echo $! > /tmp/tpc-api.pid &&
-  echo "TPC iniciado. Logs en /tmp/tpc-*.log"
-'
-
-alias tpc-stop='
-  kill $(cat /tmp/tpc-front.pid) 2>/dev/null && rm /tmp/tpc-front.pid && echo "Frontend detenido." || echo "No se pudo detener frontend."
-  kill $(cat /tmp/tpc-api.pid) 2>/dev/null && rm /tmp/tpc-api.pid && echo "Backend detenido." || echo "No se pudo detener backend."
-'
+alias vim=nvim
