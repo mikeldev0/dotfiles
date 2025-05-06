@@ -90,16 +90,14 @@ setopt hist_save_no_dups
 setopt hist_ignore_dups
 setopt hist_find_no_dups
 
-# ─── NEOFETCH (solo si terminal interactiva) ──────────────
-alias neofetch='neofetch --jp2a ~/Imágenes/codetec.png --size 550 --color_blocks off --disable infobar'
-neofetch
-
 # ─── ALIASES ──────────────────────────────────────────────
 [[ -f ~/.dotfiles/zsh/aliases.zsh ]] && source ~/.dotfiles/zsh/aliases.zsh
 
 # ─── FUNCIONES ────────────────────────────────────────────
 [[ -f ~/.dotfiles/zsh/functions.zsh ]] && source ~/.dotfiles/zsh/functions.zsh
 
+# ─── NEOFETCH (solo si terminal interactiva) ──────────────
+neofetch
 # ─── EXTRA PATHS ──────────────────────────────────────────
 export PATH="${PATH:+$PATH:}/opt/mssql-tools/bin:$HOME/.cargo/bin"
 
