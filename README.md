@@ -25,11 +25,9 @@ _(La estructura puede variar)_
 1.  Clona el repositorio:
 
     ```bash
-    git clone https://github.com/byronnDev/dotfiles.git ~/.dotfiles
+    git clone https://github.com/mikeldev0/dotfiles.git ~/.dotfiles
     ```
-
-    _(Reemplaza `tu_usuario` con tu nombre de usuario de GitHub)_
-
+    
 2.  Navega al directorio y ejecuta los scripts de instalación:
     ```bash
     cd ~/.dotfiles

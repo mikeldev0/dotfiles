@@ -27,3 +27,11 @@ alias ports='sudo lsof -i -P -n | grep LISTEN'
 alias pingg='ping google.com'
 alias alert='notify-send --urgency=low -i terminal "Terminal Finished"'
 alias plugins='echo Instalados: $(ls -1 "${ZINIT_HOME}/../plugins" 2>/dev/null | sort -u | tr "\n" " ")'
+
+# ─── ALIAS NEOFETCH CON LOGO PERSONALIZADO ────────────────
+# Usa ~/Imágenes/logo.png como logo si existe, si no usa el de dotfiles por defecto
+if [[ -f ~/Imágenes/logo.png ]]; then
+  alias neofetch='neofetch --jp2a ~/Imágenes/logo.png --size 550 --color_blocks off --disable infobar'
+else
+  alias neofetch='neofetch --jp2a ~/.dotfiles/zsh/logo.png --size 550 --color_blocks off --disable infobar'
+fi

@@ -103,6 +103,8 @@ setopt hist_find_no_dups
 # ─── FUNCIONES ────────────────────────────────────────────
 [[ -f ~/.dotfiles/zsh/functions.zsh ]] && source ~/.dotfiles/zsh/functions.zsh
 
+# ─── NEOFETCH (solo si terminal interactiva) ──────────────
+neofetch
 # ─── EXTRA PATHS ──────────────────────────────────────────
 export PATH="${PATH:+$PATH:}/opt/mssql-tools/bin:$HOME/.cargo/bin"
 
