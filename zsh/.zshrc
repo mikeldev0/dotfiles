@@ -1,3 +1,10 @@
+# ─── NEOFETCH (solo si terminal interactiva) ──────────────
+alias neofetch='neofetch --jp2a ~/Imágenes/codetec.png --size 550 --color_blocks off --disable infobar'
+
+if [[ $- == *i* ]]; then
+  neofetch
+fi
+
 # ─── POWERLEVEL10K INSTANT PROMPT ─────────────────────────
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -90,10 +97,6 @@ setopt hist_save_no_dups
 setopt hist_ignore_dups
 setopt hist_find_no_dups
 
-# ─── NEOFETCH (solo si terminal interactiva) ──────────────
-alias neofetch='neofetch --jp2a ~/Imágenes/codetec.png --size 550 --color_blocks off --disable infobar'
-neofetch
-
 # ─── ALIASES ──────────────────────────────────────────────
 [[ -f ~/.dotfiles/zsh/aliases.zsh ]] && source ~/.dotfiles/zsh/aliases.zsh
 
@@ -105,3 +108,28 @@ export PATH="${PATH:+$PATH:}/opt/mssql-tools/bin:$HOME/.cargo/bin"
 
 # ─── POWERLEVEL10K CONFIG ─────────────────────────────────
 [[ -f ~/.dotfiles/zsh/.p10k.zsh ]] && source ~/.dotfiles/zsh/.p10k.zsh
+export PATH="$PATH:/opt/mssql-tools/bin"
+
+PATH=~/.console-ninja/.bin:$PATH
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+
+export PATH="$HOME/.jbang/bin:$PATH"
+
+# Add JBang to environment
+alias j!=jbang
+export PATH="$HOME/.jbang/bin:$HOME/.jbang/currentjdk/bin:$PATH"
+export JAVA_HOME=$HOME/.jbang/currentjdk
+
+. "$HOME/.local/bin/env"
+
+
+export DOTNET_ROOT=$HOME/.dotnet
+export PATH=$PATH:$HOME/.dotnet:$HOME/.dotnet/tools
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/home/mikel/.lmstudio/bin"
+# End of LM Studio CLI section
+
