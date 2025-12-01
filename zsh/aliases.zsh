@@ -2,11 +2,17 @@
 alias ls='lsd --group-directories-first'
 alias ll='lsd -lah --group-directories-first'
 alias vim='nvim'
-alias fd='fdfind'
-alias bat='batcat'
+
+# Conditional aliases for Debian/Ubuntu naming quirks
+if command -v fdfind &>/dev/null; then
+  alias fd='fdfind'
+fi
+if command -v batcat &>/dev/null; then
+  alias bat='batcat'
+fi
+
 alias cls='clear'
 alias md='mkdir -p'
-alias vim='nvim'
 alias src='source ~/.zshrc'
 alias c='gh copilot'
 alias ce='gh copilot explain'
