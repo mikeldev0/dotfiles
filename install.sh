@@ -48,7 +48,7 @@ install_packages() {
         ubuntu|debian|linuxmint|pop) 
             local deb_pkgs=(
                 "${common_pkgs[@]}"
-                fd-find bat ripgrep docker.io docker-compose python3-pip neofetch lsd rename
+                fd-find bat ripgrep docker.io docker-compose python3-pip fastfetch lsd rename
                 build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev 
                 libsqlite3-dev wget llvm libncurses5-dev libncursesw5-dev 
                 xz-utils tk-dev libffi-dev liblzma-dev python3-openssl
@@ -64,7 +64,7 @@ install_packages() {
         fedora|rhel|centos) 
             local fedora_pkgs=(
                 "${common_pkgs[@]}"
-                fd-find bat ripgrep docker docker-compose-plugin python3-pip neofetch lsd prename
+                fd-find bat ripgrep docker docker-compose-plugin python3-pip fastfetch lsd prename
                 make gcc zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel 
                 openssl-devel tk-devel libffi-devel xz-devel perl-File-Rename
             )
@@ -76,7 +76,7 @@ install_packages() {
         arch|manjaro) 
             local arch_pkgs=(
                 "${common_pkgs[@]}"
-                fd bat ripgrep docker docker-compose python-pip neofetch lsd perl-rename
+                fd bat ripgrep docker docker-compose python-pip fastfetch lsd perl-rename
                 base-devel openssl zlib xz tk
             )
             info "Installing packages via pacman..."
