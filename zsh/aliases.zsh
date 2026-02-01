@@ -26,6 +26,12 @@ alias gp='git push'
 alias gl='git log --oneline --graph --decorate'
 alias gd='git diff'
 
+# ─── HYTALE SERVER ALIASES ─────────────────────────────
+alias hytale-logs='tail -f /home/hytale/logs/$(ls -t /home/hytale/logs/ | grep _server.log | head -n 1)'
+alias hytale-attach='screen -r hytale'
+alias hytale-status='ps aux | grep HytaleServer'
+alias cd-hytale='cd /home/hytale'
+
 # ─── MISC ALIASES ──────────────────────────────────────
 alias myip='ip a | grep inet'
 alias myippub='curl -s ipinfo.io | jq -r ".ip + \" (\" + .city + ", " + .country + ")\nISP: " + .org + "\nLoc: " + .loc + "\nHostname: " + .hostname + "\nTimezone: " + .timezone"'
@@ -34,9 +40,9 @@ alias alert='notify-send --urgency=low -i terminal "Terminal Finished"'
 alias plugins='echo Installed: $(ls -1 "${ZINIT_HOME}/../plugins" 2>/dev/null | sort -u | tr "\n" " ")'
 
 # ─── NEOFETCH ALIAS WITH CUSTOM LOGO ───────────────────
-# Uses ~/Imágenes/logo.png as logo if it exists, otherwise uses the default dotfiles logo
 if [[ -f ~/Imágenes/logo.png ]]; then
   alias neofetch='neofetch --jp2a ~/Imágenes/logo.png --size 550 --color_blocks off --disable infobar'
 else
-  alias neofetch='neofetch --jp2a ~/.dotfiles/zsh/logo.png --size 550 --color_blocks off --disable infobar'
+  alias neofetch='neofetch --jp2a ~/.dotfiles_mikel/zsh/logo.png --size 550 --color_blocks off --disable infobar'
 fi
+alias neo='openclaw'

@@ -1,5 +1,5 @@
 # ─── NEOFETCH (solo si terminal interactiva) ──────────────
-alias neofetch='neofetch --jp2a ~/Imágenes/codetec.png --size 550 --color_blocks off --disable infobar'
+alias neofetch='neofetch --jp2a ~/.dotfiles_mikel/zsh/logo.png --size 550 --color_blocks off --disable infobar'
 
 if [[ $- == *i* ]]; then
   neofetch
@@ -98,18 +98,18 @@ setopt hist_ignore_dups
 setopt hist_find_no_dups
 
 # ─── ALIASES ──────────────────────────────────────────────
-[[ -f ~/.dotfiles/zsh/aliases.zsh ]] && source ~/.dotfiles/zsh/aliases.zsh
+[[ -f ~/.dotfiles_mikel/zsh/aliases.zsh ]] && source ~/.dotfiles_mikel/zsh/aliases.zsh
 
 # ─── FUNCIONES ────────────────────────────────────────────
-[[ -f ~/.dotfiles/zsh/functions.zsh ]] && source ~/.dotfiles/zsh/functions.zsh
+[[ -f ~/.dotfiles_mikel/zsh/functions.zsh ]] && source ~/.dotfiles_mikel/zsh/functions.zsh
 
 # ─── NEOFETCH (solo si terminal interactiva) ──────────────
-neofetch
+# neofetch
 # ─── EXTRA PATHS ──────────────────────────────────────────
 export PATH="${PATH:+$PATH:}/opt/mssql-tools/bin:$HOME/.cargo/bin"
 
 # ─── POWERLEVEL10K CONFIG ─────────────────────────────────
-[[ -f ~/.dotfiles/zsh/.p10k.zsh ]] && source ~/.dotfiles/zsh/.p10k.zsh
+[[ -f ~/.dotfiles_mikel/zsh/.p10k.zsh ]] && source ~/.dotfiles_mikel/zsh/.p10k.zsh
 export PATH="$PATH:/opt/mssql-tools/bin"
 
 PATH=~/.console-ninja/.bin:$PATH
@@ -125,7 +125,7 @@ alias j!=jbang
 export PATH="$HOME/.jbang/bin:$HOME/.jbang/currentjdk/bin:$PATH"
 export JAVA_HOME=$HOME/.jbang/currentjdk
 
-. "$HOME/.local/bin/env"
+# . "$HOME/.local/bin/env"
 
 
 export DOTNET_ROOT=$HOME/.dotnet
@@ -135,3 +135,14 @@ export PATH=$PATH:$HOME/.dotnet:$HOME/.dotnet/tools
 export PATH="$PATH:/home/mikel/.lmstudio/bin"
 # End of LM Studio CLI section
 
+export PATH="/home/ubuntu/.npm-global/bin:$PATH"
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+
+# Homebrew
+export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+export PATH="$HOME/.local/bin:$PATH"
+
+# OpenClaw Completion
+source <(openclaw completion --shell zsh)
+alias neo='openclaw'
