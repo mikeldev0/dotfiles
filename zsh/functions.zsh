@@ -26,6 +26,26 @@ notify_when_done() {
   fi
 }
 
+# ─── FUNCTION: plugins ──────────────────────────
+plugins() {
+  local dir="${ZINIT_HOME}/../plugins"
+  [[ -d "$dir" ]] || { echo "No plugins dir: $dir"; return 1; }
+
+  local -a items
+  items=("$dir"/*(/N))   # solo directorios, sin errores si vacío
+
+  (( ${#items} )) || { echo "Installed: (none)"; return 0; }
+
+  echo "Installed (${#items}):"
+
+  local i=1 base pretty
+  for base in "${items[@]:t}"; do
+    pretty="${base/---//}"     # autor---repo -> autor/repo
+    printf "%2d. %s\n" "$i" "$pretty"
+    (( i++ ))
+  done
+}
+
 # ─── FUNCTION: ports ─────────────────────────────────────
 ports() {
   local want_port="" proto="" mode="all" color=1 noheader=0 details=0

@@ -30,7 +30,6 @@ alias myip="hostname -I | awk '{print \$1}'"
 alias myippub='curl -s https://ipinfo.io | jq -r "\"IP: \" + .ip + \" (\" + .city + \", \" + .country + \")\nISP: \" + .org + \"\nLoc: \" + .loc + \"\nHostname: \" + .hostname + \"\nTimezone: \" + .timezone"'
 alias pingg='ping google.com'
 alias alert='notify-send --urgency=low -i terminal "Terminal Finished"'
-alias plugins='echo Installed: $(ls -1 "${ZINIT_HOME}/../plugins" 2>/dev/null | sort -u | tr "\n" " ")'
 
 # ─── HELP ALIASES ──────────────────────────────────────
 alias ayuda='cat ~/.dotfiles/CHEATSHEET.txt'
