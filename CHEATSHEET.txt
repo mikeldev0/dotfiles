@@ -7,19 +7,23 @@
    src          -> Recargar ZSH (source ~/.zshrc)
    vim          -> Neovim (nvim)
    z [dir]      -> Salto rapido (zoxide)
-   extract [f]  -> Descomprimir casi cualquier formato
+   extract [f]  -> Descomprimir casi cualquier formato (zip, tar, rar, etc.)
 
    🌍 RED Y SISTEMA
-   myip         -> Ver IP privada
-   myippub      -> Ver IP publica (Detallada)
-   pingg        -> Ping a Google
-   ports        -> Puertos abiertos y procesos
+   myip         -> Ver IP privada local
+   myippub      -> Ver IP publica (Detallada: ISP, Ciudad, Pais)
+   pingg        -> Ping rapido a Google
+   ports        -> Puertos abiertos y procesos (Compacto)
    ports [p]    -> Filtrar por puerto especifico
 
    🐙 GIT Y DESARROLLO
    gs | ga | gc | gp -> Git status/add/commit/push
-   gl                -> Git log visual/compacto
+   gl                -> Git log visual y compacto
    c  | ce | cs      -> GitHub Copilot (si instalado)
+
+   🔔 UTILIDADES AVANZADAS
+   notify_when_done [cmd] -> Ejecuta un comando y te avisa al terminar (exito/error)
+   alert                  -> Envia una notificacion de "Terminal Finished"
 
    🦞 OPENCLAW (Solo VPS/Local)
    neo               -> Alias de openclaw
