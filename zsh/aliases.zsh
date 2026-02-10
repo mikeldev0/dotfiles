@@ -46,3 +46,6 @@ else
   alias neofetch='neofetch --jp2a ~/.dotfiles/zsh/logo.png --size 550 --color_blocks off --disable infobar'
 fi
 alias neo='openclaw'
+# ─── HELP ALIASES ──────────────────────────────────────
+alias ayuda='cat ~/.dotfiles/CHEATSHEET.md'
+alias tips='cat ~/.dotfiles/CHEATSHEET.md'

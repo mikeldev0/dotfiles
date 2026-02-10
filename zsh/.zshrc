@@ -1,10 +1,3 @@
-# ─── NEOFETCH (solo si terminal interactiva) ──────────────
-alias neofetch='neofetch --jp2a ~/.dotfiles/zsh/logo.png --size 550 --color_blocks off --disable infobar'
-
-if [[ $- == *i* ]]; then
-  neofetch
-fi
-
 # ─── POWERLEVEL10K INSTANT PROMPT ─────────────────────────
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -39,7 +32,6 @@ zinit wait lucid for \
 zinit snippet OMZL::git.zsh
 zinit snippet OMZP::git
 zinit snippet OMZP::sudo
-#zinit snippet OMZP::archlinux
 zinit snippet OMZP::command-not-found
 zinit snippet OMZP::systemd
 zinit snippet OMZP::colored-man-pages
@@ -63,8 +55,10 @@ command -v pyenv &>/dev/null && {
   eval "$(pyenv init -)"
 }
 
-# ─── NVM (versiones de Node.js, ya gestionado por plugin) ─
+# ─── NVM (versiones de Node.js) ───────────────────────────
 export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
 # ─── COMPINIT (completado inteligente) ────────────────────
 autoload -Uz compinit && compinit -C
@@ -77,7 +71,7 @@ zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color $realpath'
 zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'ls --color $realpath'
 
 # ─── KEYBINDINGS (atajos de teclado) ──────────────────────
-bindkey -e                          # modo emacs
+bindkey -e
 bindkey '^p' history-search-backward
 bindkey '^n' history-search-forward
 bindkey '^[w' kill-region
@@ -97,53 +91,31 @@ setopt hist_save_no_dups
 setopt hist_ignore_dups
 setopt hist_find_no_dups
 
-# ─── ALIASES ──────────────────────────────────────────────
+# ─── DOTFILES: ALIASES, FUNCTIONS, P10K ───────────────────
 [[ -f ~/.dotfiles/zsh/aliases.zsh ]] && source ~/.dotfiles/zsh/aliases.zsh
-
-# ─── FUNCIONES ────────────────────────────────────────────
 [[ -f ~/.dotfiles/zsh/functions.zsh ]] && source ~/.dotfiles/zsh/functions.zsh
-
-# ─── NEOFETCH (solo si terminal interactiva) ──────────────
-# neofetch
-# ─── EXTRA PATHS ──────────────────────────────────────────
-export PATH="${PATH:+$PATH:}/opt/mssql-tools/bin:$HOME/.cargo/bin"
-
-# ─── POWERLEVEL10K CONFIG ─────────────────────────────────
 [[ -f ~/.dotfiles/zsh/.p10k.zsh ]] && source ~/.dotfiles/zsh/.p10k.zsh
-export PATH="$PATH:/opt/mssql-tools/bin"
 
-PATH=~/.console-ninja/.bin:$PATH
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+# ─── PATHS E INTERNALS (Agnostic) ─────────────────────────
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$HOME/.jbang/bin:$HOME/.dotnet:$HOME/.dotnet/tools:$PATH"
+[[ -d /home/linuxbrew/.linuxbrew ]] && eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 
-
-export PATH="$HOME/.jbang/bin:$PATH"
-
-# Add JBang to environment
+# JBang & Java
+export PATH="$HOME/.jbang/currentjdk/bin:$PATH"
+export JAVA_HOME="$HOME/.jbang/currentjdk"
 alias j!=jbang
-export PATH="$HOME/.jbang/bin:$HOME/.jbang/currentjdk/bin:$PATH"
-export JAVA_HOME=$HOME/.jbang/currentjdk
 
-# . "$HOME/.local/bin/env"
+# LM Studio
+export PATH="$HOME/.lmstudio/bin:$PATH"
 
-
-export DOTNET_ROOT=$HOME/.dotnet
-export PATH=$PATH:$HOME/.dotnet:$HOME/.dotnet/tools
-
-# Added by LM Studio CLI (lms)
-export PATH="$PATH:/home/mikel/.lmstudio/bin"
-# End of LM Studio CLI section
-
-export PATH="/home/ubuntu/.npm-global/bin:$PATH"
-export XDG_RUNTIME_DIR="/run/user/$(id -u)"
-
-# Homebrew
-export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-export PATH="$HOME/.local/bin:$PATH"
-
+# OpenClaw (si existe en la ruta estándar de npm)
+export PATH="$HOME/.npm-global/bin:$PATH"
+[[ -f ~/.openclaw/completions/openclaw.zsh ]] && source ~/.openclaw/completions/openclaw.zsh
 alias neo='openclaw'
 
-# OpenClaw Completion
-source "/home/ubuntu/.openclaw/completions/openclaw.zsh"
+# ─── NEOFETCH (interactivo) ──────────────
+if [[ $- == *i* ]]; then
+  [[ -f ~/.dotfiles/zsh/logo.png ]] && \
+  alias neofetch='neofetch --jp2a ~/.dotfiles/zsh/logo.png --size 550 --color_blocks off --disable infobar'
+  neofetch
+fi
