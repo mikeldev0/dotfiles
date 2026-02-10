@@ -197,15 +197,17 @@ setup_dotfiles() {
 
     # Ensure we are linking from the right place
     if [[ ! -d "$dotfiles_dir" ]]; then
-        warn "$dotfiles_dir does not exist. Skipping symlinks."
-        return
+        # Try finding it in the current directory if $HOME/.dotfiles missing
+        dotfiles_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        info "Using current directory for dotfiles: $dotfiles_dir"
     fi
 
+    # Create symlinks
     ln -sf "$dotfiles_dir/zsh/.zshrc" "$HOME/.zshrc"
     ln -sf "$dotfiles_dir/zsh/.p10k.zsh" "$HOME/.p10k.zsh"
     ln -sf "$dotfiles_dir/git/.gitconfig" "$HOME/.gitconfig"
     
-    info "Symlinks created."
+    info "Symlinks created successfully."
 }
 
 # ─── Finalize ────────────────────────────────────────────────────────────────
