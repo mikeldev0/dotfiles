@@ -1,47 +1,39 @@
 # 🦞 MIKEL'S DOTFILES CHEATSHEET 🕶️🤘
 
-Esta es una guía rápida de los atajos y funciones configurados para maximizar la productividad en tu terminal.
+Esta es una guía de los atajos y funciones universales de tus dotfiles. Algunos comandos requieren que la herramienta esté instalada en el sistema.
 
-## 🚀 Neo / OpenClaw
-- **`neo`**: Alias principal para `openclaw`. Es el centro de control de tu asistente.
-- **`neo status`**: Estado de sesiones y canales (WhatsApp/Telegram).
-- **`neo doctor`**: Diagnóstico y reparación automática del Gateway.
-- **`neo logs --follow`**: Ver qué está pasando en tiempo real.
-- **`neo skills list`**: Lista de todas las habilidades instaladas.
-
-## 🛠️ Utilidades Generales
+## 🛠️ Navegación y Archivos
 - **`cls`**: Limpia la pantalla.
-- **`md [nombre]`**: Crea una carpeta (incluyendo padres si no existen).
+- **`md [nombre]`**: Crea una carpeta (incluyendo padres).
 - **`src`**: Recarga la configuración del shell (`source ~/.zshrc`).
 - **`vim`**: Lanza Neovim (`nvim`).
-- **`bat`**: Versión mejorada de `cat` con resaltado de sintaxis.
-- **`fd`**: Versión rápida de `find`.
-- **`z [directorio]`**: Salta rápidamente a carpetas frecuentes (Zoxide).
+- **`z [dir]`**: Salta rápidamente entre carpetas (requiere `zoxide`).
+- **`extract [fichero]`**: Descomprime casi cualquier formato (.zip, .tar.gz, .rar, etc.).
 
 ## 🌍 Red y Sistema
-- **`myip`**: Muestra tu IP privada local.
-- **`myippub`**: Información detallada de tu IP pública (Ciudad, ISP, Geolocalización).
+- **`myip`**: IP privada local.
+- **`myippub`**: Info detallada de tu IP pública (Ciudad, ISP, Geolocalización).
 - **`pingg`**: Ping rápido a Google.
 - **`ports`**: Lista los puertos abiertos y sus procesos.
-    - `ports 3000`: Filtra por puerto específico.
-    - `ports -L`: Solo puertos en escucha.
-- **`extract [fichero]`**: Descomprime automáticamente casi cualquier formato (.zip, .tar.gz, .rar, etc.).
+    - `ports 3000`: Filtra por puerto.
+    - `ports -L`: Solo en escucha.
 
-## 🐙 GitHub & Copilot
-- **`c`**: Abre GitHub Copilot CLI.
-- **`ce [error]`**: Explica un error o comando usando Copilot.
-- **`cs [tarea]`**: Sugiere comandos para una tarea específica.
+## 🐙 Git y Desarrollo
+- **`gs`**, **`ga`**, **`gc [msg]`**, **`gp`**: Atajos básicos de Git (status, add, commit, push).
+- **`gl`**: Log de Git visual y compacto.
+- **`c`**, **`ce`**, **`cs`**: Atajos para GitHub Copilot CLI (si está instalado).
 
-## 🎮 Hytale Server
-- **`hytale-logs`**: Ver logs del servidor en tiempo real.
-- **`hytale-attach`**: Entrar a la consola del servidor (screen).
-- **`hytale-status`**: Ver si el proceso está vivo.
-- **`cd-hytale`**: Ir directo a la carpeta del servidor.
+## 🦞 OpenClaw (Solo VPS/Local con OpenClaw)
+- **`neo`**: Alias de `openclaw`.
+- **`neo status`**, **`neo doctor`**, **`neo logs --follow`**.
 
-## 💡 Pro-Tips
-- **FZF**: Usa `CTRL+T` para buscar archivos o `ALT+C` para buscar directorios y entrar en ellos.
-- **Autosuggestions**: Escribe el inicio de un comando y pulsa `Flecha Derecha` para autocompletar desde el historial.
-- **History**: Usa `CTRL+R` para una búsqueda avanzada multipalabra en tu historial de comandos.
+## 🎮 Servidores (Solo si aplica)
+- **`hytale-logs`**, **`hytale-attach`**: Gestión de servidor Hytale.
+
+## 💡 Pro-Tips Universales
+- **FZF**: `CTRL+T` (buscar archivos) y `ALT+C` (buscar y entrar en carpetas).
+- **Historial**: `CTRL+R` para búsqueda avanzada en el historial.
+- **Sudo**: Pulsa `ESC` dos veces para añadir `sudo` al comando actual.
 
 ---
-Para volver a ver esta guía, escribe: **`ayuda`** o **`tips`**
+Para ver esta guía: **`ayuda`** o **`tips`**
