@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Universal Dotfiles Installer
-# Supports: Ubuntu/Debian/Mint, Fedora, macOS
+# Supports: Ubuntu/Debian/Mint, Fedora, Arch Linux, macOS
 
 set -e
 set -o pipefail
@@ -49,6 +49,9 @@ detect_os() {
         ;;
       fedora)
         PKG_MANAGER="dnf"
+        ;;
+      arch)
+        PKG_MANAGER="pacman"
         ;;
       *)
         error "Unsupported Linux distro: $ID"
@@ -102,6 +105,11 @@ install_packages() {
     dnf)
       sudo dnf install -y \
         zsh curl git fzf zoxide fastfetch bat ripgrep fd-find lsd
+      ;;
+
+    pacman)
+      sudo pacman -Syu --noconfirm --needed \
+        zsh curl git fzf zoxide starship fastfetch bat ripgrep fd lsd
       ;;
 
     brew)
