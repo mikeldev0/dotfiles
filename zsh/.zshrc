@@ -1,5 +1,5 @@
 # ─── NEOFETCH (solo si terminal interactiva) ──────────────
-alias neofetch='neofetch --jp2a ~/.dotfiles_mikel/zsh/logo.png --size 550 --color_blocks off --disable infobar'
+alias neofetch='neofetch --jp2a ~/.dotfiles/zsh/logo.png --size 550 --color_blocks off --disable infobar'
 
 if [[ $- == *i* ]]; then
   neofetch
@@ -98,10 +98,10 @@ setopt hist_ignore_dups
 setopt hist_find_no_dups
 
 # ─── ALIASES ──────────────────────────────────────────────
-[[ -f ~/.dotfiles_mikel/zsh/aliases.zsh ]] && source ~/.dotfiles_mikel/zsh/aliases.zsh
+[[ -f ~/.dotfiles/zsh/aliases.zsh ]] && source ~/.dotfiles/zsh/aliases.zsh
 
 # ─── FUNCIONES ────────────────────────────────────────────
-[[ -f ~/.dotfiles_mikel/zsh/functions.zsh ]] && source ~/.dotfiles_mikel/zsh/functions.zsh
+[[ -f ~/.dotfiles/zsh/functions.zsh ]] && source ~/.dotfiles/zsh/functions.zsh
 
 # ─── NEOFETCH (solo si terminal interactiva) ──────────────
 # neofetch
@@ -109,7 +109,7 @@ setopt hist_find_no_dups
 export PATH="${PATH:+$PATH:}/opt/mssql-tools/bin:$HOME/.cargo/bin"
 
 # ─── POWERLEVEL10K CONFIG ─────────────────────────────────
-[[ -f ~/.dotfiles_mikel/zsh/.p10k.zsh ]] && source ~/.dotfiles_mikel/zsh/.p10k.zsh
+[[ -f ~/.dotfiles/zsh/.p10k.zsh ]] && source ~/.dotfiles/zsh/.p10k.zsh
 export PATH="$PATH:/opt/mssql-tools/bin"
 
 PATH=~/.console-ninja/.bin:$PATH
@@ -143,6 +143,7 @@ export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PAT
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 export PATH="$HOME/.local/bin:$PATH"
 
-# OpenClaw Completion
-source <(openclaw completion --shell zsh)
 alias neo='openclaw'
+
+# OpenClaw Completion
+source "/home/ubuntu/.openclaw/completions/openclaw.zsh"

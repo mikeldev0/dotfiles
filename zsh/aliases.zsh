@@ -43,6 +43,6 @@ alias plugins='echo Installed: $(ls -1 "${ZINIT_HOME}/../plugins" 2>/dev/null | 
 if [[ -f ~/Imágenes/logo.png ]]; then
   alias neofetch='neofetch --jp2a ~/Imágenes/logo.png --size 550 --color_blocks off --disable infobar'
 else
-  alias neofetch='neofetch --jp2a ~/.dotfiles_mikel/zsh/logo.png --size 550 --color_blocks off --disable infobar'
+  alias neofetch='neofetch --jp2a ~/.dotfiles/zsh/logo.png --size 550 --color_blocks off --disable infobar'
 fi
 alias neo='openclaw'
