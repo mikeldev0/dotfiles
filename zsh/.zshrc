@@ -108,5 +108,6 @@ alias neo='openclaw'
 if [[ $- == *i* ]]; then
   [[ -f ~/.dotfiles/zsh/logo.png ]] && \
   alias neofetch='neofetch --jp2a ~/.dotfiles/zsh/logo.png --size 550 --color_blocks off --disable infobar'
-  neofetch
+  # neofetch desactivado en el inicio para evitar error de Instant Prompt de P10k
+  # neofetch
 fi
