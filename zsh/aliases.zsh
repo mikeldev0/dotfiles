@@ -47,5 +47,5 @@ else
 fi
 alias neo='openclaw'
 # ─── HELP ALIASES ──────────────────────────────────────
-alias ayuda='cat ~/.dotfiles/CHEATSHEET.md'
-alias tips='cat ~/.dotfiles/CHEATSHEET.md'
+alias ayuda='cat ~/.dotfiles/CHEATSHEET.txt'
+alias tips='cat ~/.dotfiles/CHEATSHEET.txt'

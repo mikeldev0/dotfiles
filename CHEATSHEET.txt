@@ -1,0 +1,35 @@
+   🦞 MIKEL'S DOTFILES CHEATSHEET 🕶️🤘
+   ───────────────────────────────────
+
+   🚀 NAVEGACION Y ARCHIVOS
+   cls          -> Limpiar pantalla
+   md [nombre]  -> Crear carpeta (con padres)
+   src          -> Recargar ZSH (source ~/.zshrc)
+   vim          -> Neovim (nvim)
+   z [dir]      -> Salto rapido (zoxide)
+   extract [f]  -> Descomprimir casi cualquier formato
+
+   🌍 RED Y SISTEMA
+   myip         -> Ver IP privada
+   myippub      -> Ver IP publica (Detallada)
+   pingg        -> Ping a Google
+   ports        -> Puertos abiertos y procesos
+   ports [p]    -> Filtrar por puerto especifico
+
+   🐙 GIT Y DESARROLLO
+   gs | ga | gc | gp -> Git status/add/commit/push
+   gl                -> Git log visual/compacto
+   c  | ce | cs      -> GitHub Copilot (si instalado)
+
+   🦞 OPENCLAW (Solo VPS/Local)
+   neo               -> Alias de openclaw
+   neo status/doctor -> Control del asistente
+
+   💡 PRO-TIPS
+   CTRL+T  -> Buscar archivos (FZF)
+   ALT+C   -> Buscar y entrar en carpetas
+   CTRL+R  -> Buscar en historial (Avanzado)
+   ESC ESC -> Añadir 'sudo' al comando actual
+
+   ───────────────────────────────────
+   Para ver esto: 'ayuda' o 'tips'
