@@ -30,20 +30,6 @@ notify_when_done() {
 
 # ─── FUNCTION: ports ─────────────────────────────────────
 # Lists ports/connections (macOS and Linux) with a clean format.
-# By default:
-#   - Shows ALL connections (equivalent to -a)
-#   - Only columns: PID | Process | Local Address
-#   - Tries without sudo (if not allowed, uses sudo -n)
-#
-# Examples:
-#   ports                 # all, compact view (PID, Process, Local Address)
-#   ports -d              # adds Proto and State columns
-#   ports 3000            # filter by port
-#   ports -L              # only listening
-#   ports -e              # only established (TCP)
-#   ports -t / -u         # only TCP / only UDP
-#   ports --no-header     # no header
-#   ports -n              # no colors
 ports() {
   local want_port="" proto="" mode="all" color=1 noheader=0 details=0
 
@@ -53,10 +39,10 @@ ports() {
       -p|--port)        want_port="$2"; shift 2 ;;
       -t|--tcp)         proto="tcp"; shift ;;
       -u|--udp)         proto="udp"; shift ;;
-      -a|--all)         mode="all"; shift ;;                # (default)
+      -a|--all)         mode="all"; shift ;;
       -e|--established) mode="established"; shift ;;
       -L|--listening)   mode="listening"; shift ;;
-      -d|--details)     details=1; shift ;;                 # ← NEW
+      -d|--details)     details=1; shift ;;
       -n|--no-color)    color=0; shift ;;
       --no-header)      noheader=1; shift ;;
       -h|--help)
@@ -87,10 +73,10 @@ EOF
     esac
   done
 
-  # --- Colors (only if TTY and no --no-color) ---
-  local BOLD="" DIM="" GREEN="" BLUE="" CYAN="" RESET=""
+  # --- Colors ---
+  local BOLD="" GREEN="" BLUE="" CYAN="" RESET=""
   if [[ -t 1 && $color -eq 1 ]]; then
-    BOLD=$'\033[1m'; DIM=$'\033[2m'; GREEN=$'\033[32m'; BLUE=$'\033[34m'; CYAN=$'\033[36m'; RESET=$'\033[0m'
+    BOLD=$'\033[1m'; GREEN=$'\033[32m'; BLUE=$'\033[34m'; CYAN=$'\033[36m'; RESET=$'\033[0m'
   fi
 
   # --- Header ---
@@ -110,18 +96,17 @@ EOF
     case "$proto" in
       udp) args+=( -iUDP ) ;;
       tcp) args+=( -iTCP ) ;;
-      "" ) args+=( -i ) ;;        # ← default TCP+UDP
+      "" ) args+=( -i ) ;;
     esac
     case "$mode" in
       listening)   [[ "$proto" != "udp" ]] && args+=( -sTCP:LISTEN ) ;;
       established) [[ "$proto" != "udp" ]] && args+=( -sTCP:ESTABLISHED ) ;;
-      all)         : ;;
     esac
     [[ -n "$want_port" ]] && args+=( -i ":$want_port" )
 
     lsof "${args[@]}" 2>/dev/null | awk -v wp="$want_port" \
       -v g="$GREEN" -v b="$BLUE" -v c="$CYAN" -v r="$RESET" -v det="$details" '
-      NR==1 { next } # skip lsof header
+      NR==1 { next }
       {
         pid=$2; proc=$1;
         last=$NF; before1=$(NF-1); before2=$(NF-2)
@@ -135,11 +120,9 @@ EOF
         key=pid "|" addr
         if (!seen[key]++) {
           if (det==1) {
-            printf "%s%-8s%s %s%-18s%s %s%-5s%s %s%-12s%s %s%s%s\n",
-                   g,pid,r, b,proc,r, c,proto,r, c,(state==""?"":state),r, c,addr,r
+            printf "%s%-8s%s %s%-18s%s %s%-5s%s %s%-12s%s %s%s%s\n", g,pid,r, b,proc,r, c,proto,r, c,state,r, c,addr,r
           } else {
-            printf "%s%-8s%s %s%-18s%s %s%s%s\n",
-                   g,pid,r, b,proc,r, c,addr,r
+            printf "%s%-8s%s %s%-18s%s %s%s%s\n", g,pid,r, b,proc,r, c,addr,r
           }
         }
       }'
@@ -154,89 +137,38 @@ EOF
       esac
       [[ "$mode" == "listening" ]] && ss_flags+=( -l )
       ss_flags+=( -p )
-      local filter=""
-      [[ "$mode" == "established" ]] && filter="state established"
-
-      local out=""
-      if [[ -n "$filter" ]]; then
-        out="$(ss "${ss_flags[@]}" $filter 2>/dev/null)"
-      else
-        out="$(ss "${ss_flags[@]}" 2>/dev/null)"
-      fi
+      local out; out="$(ss "${ss_flags[@]}" 2>/dev/null)"
       if [[ -z "$out" ]] && command -v sudo >/dev/null 2>&1; then
-        if [[ -n "$filter" ]]; then
-          out="$(sudo -n ss "${ss_flags[@]}" $filter 2>/dev/null)"
-        else
-          out="$(sudo -n ss "${ss_flags[@]}" 2>/dev/null)"
-        fi
+        out="$(sudo -n ss "${ss_flags[@]}" 2>/dev/null)"
       fi
 
       awk -v wp="$want_port" -v g="$GREEN" -v b="$BLUE" -v c="$CYAN" -v r="$RESET" -v det="$details" '
-        # Example: tcp ESTAB ... 192.168.1.10:55768 1.2.3.4:443 users:(("firefox",pid=3947,fd=91))
         {
-          proto = tolower($1)
-          state = ($2 == "" ? "" : $2)
-          laddr = $5
-          pid=""; proc=""
-          if (match($0, /users:\(\("([^\"]+)",pid=([0-9]+)/, M)) { proc=M[1]; pid=M[2] }
+          proto = tolower($1); state = ($2 == "" ? "" : $2); laddr = $5; pid=""; proc=""
+          if (match($0, /users:\(\("([^"]+)",pid=([0-9]+)/, M)) { proc=M[1]; pid=M[2] }
           portnum=""
-          if (laddr ~ /]:[0-9]+$/)       { match(laddr, /]:([0-9]+)$/, P); portnum=P[1] }
+          if (laddr ~ /]:[0-9]+$/) { match(laddr, /]:([0-9]+)$/, P); portnum=P[1] }
           else if (laddr ~ /:([0-9]+)$/) { match(laddr, /:([0-9]+)$/, P); portnum=P[1] }
           if (wp != "" && portnum != wp) next
           key=pid "|" laddr
           if (!seen[key]++) {
             if (pid=="" && proc=="") { pid="-"; proc="-" }
             if (det==1) {
-              printf "%s%-8s%s %s%-18s%s %s%-5s%s %s%-12s%s %s%s%s\n",
-                     g,pid,r, b,proc,r, c,(proto=="udp"?"UDP":"TCP"),r, c,state,r, c,laddr,r
+              printf "%s%-8s%s %s%-18s%s %s%-5s%s %s%-12s%s %s%s%s\n", g,pid,r, b,proc,r, c,proto,r, c,state,r, c,laddr,r
             } else {
-              printf "%s%-8s%s %s%-18s%s %s%s%s\n",
-                     g,pid,r, b,proc,r, c,laddr,r
+              printf "%s%-8s%s %s%-18s%s %s%s%s\n", g,pid,r, b,proc,r, c,addr,r
             }
           }
         }' <<< "$out"
-    else
-      local ns_out
-      ns_out="$(netstat -nlp 2>/dev/null)"
-      if [[ -z "$ns_out" ]] && command -v sudo >/dev/null 2>&1; then
-        ns_out="$(sudo -n netstat -nlp 2>/dev/null)"
-      fi
-      awk -v wp="$want_port" -v g="$GREEN" -v b="$BLUE" -v c="$CYAN" -v r="$RESET" -v det="$details" '
-        $0 ~ /^(tcp|udp)/ {
-          proto=toupper($1); laddr=$4; state=$6; pp=$7
-          pid=""; proc=""
-          if (pp != "-" && pp != "") { split(pp,a,"/"); pid=a[1]; proc=a[2] }
-          portnum=""
-          if (laddr ~ /]:[0-9]+$/)       { match(laddr, /]:([0-9]+)$/, P); portnum=P[1] }
-          else if (laddr ~ /:([0-9]+)$/) { match(laddr, /:([0-9]+)$/, P); portnum=P[1] }
-          if (wp != "" && portnum != wp) next
-          if (state=="") state="LISTEN"
-          key=pid "|" laddr
-          if (!seen[key]++) {
-            if (pid=="" && proc=="") { pid="-"; proc="-" }
-            if (det==1) {
-              printf "%s%-8s%s %s%-18s%s %s%-5s%s %s%-12s%s %s%s%s\n",
-                     g,pid,r, b,proc,r, c,proto,r, c,state,r, c,laddr,r
-            } else {
-              printf "%s%-8s%s %s%-18s%s %s%s%s\n",
-                     g,pid,r, b,proc,r, c,laddr,r
-            }
-          }
-        }' <<< "$ns_out"
     fi
   fi
 }
 
 # ─── FUNCTION: cdx ───────────────────────────────────────
-# Wrapper around the Codex CLI with an update helper.
 cdx() {
   if [[ "$1" == "update" ]]; then
     npm install -g @openai/codex@latest
   else
-    codex \
-      --model 'gpt-5-codex' \
-      --full-auto \
-      -c model_reasoning_summary_format=experimental \
-      --search "$@"
+    codex --model 'gpt-5-codex' --full-auto -c model_reasoning_summary_format=experimental --search "$@"
   fi
 }

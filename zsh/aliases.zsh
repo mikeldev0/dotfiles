@@ -33,8 +33,8 @@ alias hytale-status='ps aux | grep HytaleServer'
 alias cd-hytale='cd /home/hytale'
 
 # ─── MISC ALIASES ──────────────────────────────────────
-alias myip='ip a | grep inet'
-alias myippub='curl -s ipinfo.io | jq -r ".ip + \" (\" + .city + ", " + .country + ")\nISP: " + .org + "\nLoc: " + .loc + "\nHostname: " + .hostname + "\nTimezone: " + .timezone"'
+alias myip="hostname -I | awk '{print \$1}'"
+alias myippub='curl -s https://ipinfo.io | jq -r "\"IP: \" + .ip + \" (\" + .city + \", \" + .country + \")\nISP: \" + .org + \"\nLoc: \" + .loc + \"\nHostname: \" + .hostname + \"\nTimezone: \" + .timezone"'
 alias pingg='ping google.com'
 alias alert='notify-send --urgency=low -i terminal "Terminal Finished"'
 alias plugins='echo Installed: $(ls -1 "${ZINIT_HOME}/../plugins" 2>/dev/null | sort -u | tr "\n" " ")'
