@@ -83,46 +83,71 @@ EOF
   fi
 
   if [[ "$(uname -s)" == "Darwin" ]]; then
-    # macOS logic simplified for brevity but kept functional
-    lsof -i -nP | awk -v wp="$want_port" 'NR>1 {print $2, $1, $9}' # simplified logic
-  else
-    # Linux (ss preferred)
-    local ss_flags="-H -n"
-    [[ "$mode" == "listening" ]] && ss_flags="$ss_flags -l"
-    [[ "$proto" == "tcp" ]] && ss_flags="$ss_flags -t"
-    [[ "$proto" == "udp" ]] && ss_flags="$ss_flags -u"
-    [[ -z "$proto" ]] && ss_flags="$ss_flags -tu"
-    
-    local out
-    out=$(ss $ss_flags -p 2>/dev/null)
-    [[ -z "$out" ]] && out=$(sudo -n ss $ss_flags -p 2>/dev/null)
-
-    echo "$out" | awk -v wp="$want_port" -v g="$GREEN" -v b="$BLUE" -v c="$CYAN" -v r="$RESET" -v det="$details" '
-    {
-      split($1, a, " "); proto = a[1];
-      laddr = $5;
-      pid="-"; proc="-";
-      if (match($0, /users:\(\("([^"]+)",pid=([0-9]+)/, M)) {
-        proc = M[1]; pid = M[2];
-      }
-      pnum = laddr; sub(/.*:/, "", pnum);
-      if (wp != "" && pnum != wp) next;
-      if (!seen[pid laddr]++) {
-        if (det == 1) {
-          printf "%-8s %-18s %-5s %-12s %s\n", pid, proc, proto, $2, laddr
-        } else {
-          printf "%-8s %-18s %s\n", pid, proc, laddr
+    # macOS: simple (si quieres parity real con Linux, lo afinamos luego)
+    lsof -i -nP | awk -v wp="$want_port" '
+      NR>1 {
+        pid=$2; proc=$1; laddr=$9;
+        if (wp != "") {
+          p=laddr; sub(/^.*:/,"",p);
+          if (p != wp) next;
         }
-      }
-    }'
+        printf "%-8s %-18s %s\n", pid, proc, laddr
+      }'
+    return 0
   fi
-}
 
-# ─── FUNCTION: cdx ───────────────────────────────────────
-cdx() {
-  if [[ "$1" == "update" ]]; then
-    npm install -g @openai/codex@latest
-  else
-    codex --model 'gpt-5-codex' --full-auto -c model_reasoning_summary_format=experimental --search "$@"
+  # Linux (ss preferred)
+  local ss_flags="-H -n -p"
+  local filter=()
+
+  [[ "$mode" == "listening" ]] && ss_flags="$ss_flags -l"
+
+  if [[ "$mode" == "established" ]]; then
+    # ss "established" tiene sentido en TCP
+    [[ "$proto" == "udp" ]] && return 0
+    [[ -z "$proto" ]] && proto="tcp"
+    filter=(state established)
   fi
+
+  [[ "$proto" == "tcp" ]] && ss_flags="$ss_flags -t"
+  [[ "$proto" == "udp" ]] && ss_flags="$ss_flags -u"
+  [[ -z "$proto" ]] && ss_flags="$ss_flags -tu"
+
+  local out=""
+  out=$(ss $ss_flags "${filter[@]}" 2>/dev/null) || out=""
+  if [[ -z "$out" ]]; then
+    out=$(sudo -n ss $ss_flags "${filter[@]}" 2>/dev/null) || out=""
+  fi
+
+  echo "$out" | awk -v wp="$want_port" -v det="$details" '
+    {
+      proto=$1;
+      state=$2;
+      laddr=$5;
+
+      pid="-"; proc="-";
+
+      # Extrae el primer users:(("proc",pid=1234 ...)) sin match(..., ..., array)
+      if (match($0, /users:\(\(\"[^"]+\",pid=[0-9]+/)) {
+        s = substr($0, RSTART, RLENGTH);
+        sub(/^users:\(\(\"/, "", s);          # quita prefijo
+        split(s, a, /",pid=/);               # a[1]=proc, a[2]=pid...
+        proc = a[1];
+        pid  = a[2];
+        sub(/[^0-9].*$/, "", pid);           # deja solo dígitos
+      }
+
+      pnum=laddr;
+      sub(/^.*:/, "", pnum);                 # último ":" -> puerto (ok para IPv6)
+      if (wp != "" && pnum != wp) next;
+
+      key = pid "\t" proc "\t" proto "\t" state "\t" laddr;
+      if (seen[key]++) next;
+
+      if (det == 1)
+        printf "%-8s %-18s %-5s %-12s %s\n", pid, proc, proto, state, laddr;
+      else
+        printf "%-8s %-18s %s\n", pid, proc, laddr;
+    }
+  '
 }
