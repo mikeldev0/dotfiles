@@ -205,7 +205,6 @@ setup_dotfiles() {
     # Create symlinks
     ln -sf "$dotfiles_dir/zsh/.zshrc" "$HOME/.zshrc"
     ln -sf "$dotfiles_dir/zsh/.p10k.zsh" "$HOME/.p10k.zsh"
-    ln -sf "$dotfiles_dir/git/.gitconfig" "$HOME/.gitconfig"
     
     info "Symlinks created successfully."
 }
