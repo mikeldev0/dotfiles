@@ -1,5 +1,4 @@
 # ─── FUNCTION: extract ───────────────────────────────────
-# Automatically extracts an archive based on its extension
 extract() {
   [[ -f "$1" ]] || { echo "File not found: $1" >&2; return 1; }
   case "$1" in
@@ -17,7 +16,6 @@ extract() {
 }
 
 # ─── FUNCTION: notify_when_done ──────────────────────────
-# Runs a command and sends a desktop notification based on the result
 notify_when_done() {
   "$@"
   local cmd_status=$?
@@ -29,11 +27,9 @@ notify_when_done() {
 }
 
 # ─── FUNCTION: ports ─────────────────────────────────────
-# Lists ports/connections (macOS and Linux) with a clean format.
 ports() {
   local want_port="" proto="" mode="all" color=1 noheader=0 details=0
 
-  # --- Argument parsing ---
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -p|--port)        want_port="$2"; shift 2 ;;
@@ -73,13 +69,11 @@ EOF
     esac
   done
 
-  # --- Colors ---
   local BOLD="" GREEN="" BLUE="" CYAN="" RESET=""
   if [[ -t 1 && $color -eq 1 ]]; then
     BOLD=$'\033[1m'; GREEN=$'\033[32m'; BLUE=$'\033[34m'; CYAN=$'\033[36m'; RESET=$'\033[0m'
   fi
 
-  # --- Header ---
   if [[ $noheader -ne 1 ]]; then
     if [[ $details -eq 1 ]]; then
       printf "${BOLD}%-8s %-18s %-5s %-12s %s${RESET}\n" "PID" "Process" "Proto" "State" "Local Address"
@@ -89,9 +83,7 @@ EOF
   fi
 
   local os; os="$(uname -s)"
-
   if [[ "$os" == "Darwin" ]] && command -v lsof >/dev/null 2>&1; then
-    # --- macOS: lsof ---
     local args=( -nP )
     case "$proto" in
       udp) args+=( -iUDP ) ;;
@@ -108,26 +100,24 @@ EOF
       -v g="$GREEN" -v b="$BLUE" -v c="$CYAN" -v r="$RESET" -v det="$details" '
       NR==1 { next }
       {
-        pid=$2; proc=$1;
-        last=$NF; before1=$(NF-1); before2=$(NF-2)
-        state=""; addr=""; proto=""
+        pid=$2; proc=$1; last=$NF; before1=$(NF-1); before2=$(NF-2);
+        state=""; addr=""; proto="";
         if (last ~ /^\(.*\)$/) { state=substr(last,2,length(last)-2); addr=before1; proto=before2; }
         else { addr=last; proto=before1; }
-        portnum=""
-        if (addr ~ /]:[0-9]+$/)       { match(addr, /]:([0-9]+)$/, m); portnum=m[1] }
-        else if (addr ~ /:[0-9]+$/)   { match(addr, /:([0-9]+)$/, m); portnum=m[1] }
-        if (wp != "" && portnum != wp) next
-        key=pid "|" addr
+        portnum="";
+        if (addr ~ /]:[0-9]+$/) { match(addr, /]:([0-9]+)$/, m); portnum=m[1]; }
+        else if (addr ~ /:[0-9]+$/) { match(addr, /:([0-9]+)$/, m); portnum=m[1]; }
+        if (wp != "" && portnum != wp) next;
+        key=pid "|" addr;
         if (!seen[key]++) {
           if (det==1) {
-            printf "%s%-8s%s %s%-18s%s %s%-5s%s %s%-12s%s %s%s%s\n", g,pid,r, b,proc,r, c,proto,r, c,state,r, c,addr,r
+            printf "%s%-8s%s %s%-18s%s %s%-5s%s %s%-12s%s %s%s%s\n", g, pid, r, b, proc, r, c, proto, r, c, state, r, c, addr, r;
           } else {
-            printf "%s%-8s%s %s%-18s%s %s%s%s\n", g,pid,r, b,proc,r, c,addr,r
+            printf "%s%-8s%s %s%-18s%s %s%s%s\n", g, pid, r, b, proc, r, c, addr, r;
           }
         }
       }'
   else
-    # --- Linux ---
     if command -v ss >/dev/null 2>&1; then
       local ss_flags=( -H -n )
       case "$proto" in
@@ -144,19 +134,18 @@ EOF
 
       awk -v wp="$want_port" -v g="$GREEN" -v b="$BLUE" -v c="$CYAN" -v r="$RESET" -v det="$details" '
         {
-          proto = tolower($1); state = ($2 == "" ? "" : $2); laddr = $5; pid=""; proc=""
-          if (match($0, /users:\(\("([^"]+)",pid=([0-9]+)/, M)) { proc=M[1]; pid=M[2] }
-          portnum=""
-          if (laddr ~ /]:[0-9]+$/) { match(laddr, /]:([0-9]+)$/, P); portnum=P[1] }
-          else if (laddr ~ /:([0-9]+)$/) { match(laddr, /:([0-9]+)$/, P); portnum=P[1] }
-          if (wp != "" && portnum != wp) next
-          key=pid "|" laddr
+          proto=tolower($1); state=($2==""?"":$2); laddr=$5; pid="-"; proc="-";
+          if (match($0, /users:\(\("([^"]+)",pid=([0-9]+)/, M)) { proc=M[1]; pid=M[2]; }
+          portnum="";
+          if (laddr ~ /]:[0-9]+$/) { match(laddr, /]:([0-9]+)$/, P); portnum=P[1]; }
+          else if (laddr ~ /:([0-9]+)$/) { match(laddr, /:([0-9]+)$/, P); portnum=P[1]; }
+          if (wp != "" && portnum != wp) next;
+          key=pid "|" laddr;
           if (!seen[key]++) {
-            if (pid=="" && proc=="") { pid="-"; proc="-" }
             if (det==1) {
-              printf "%s%-8s%s %s%-18s%s %s%-5s%s %s%-12s%s %s%s%s\n", g,pid,r, b,proc,r, c,proto,r, c,state,r, c,laddr,r
+              printf "%s%-8s%s %s%-18s%s %s%-5s%s %s%-12s%s %s%s%s\n", g, pid, r, b, proc, r, c, proto, r, c, state, r, c, laddr, r;
             } else {
-              printf "%s%-8s%s %s%-18s%s %s%s%s\n", g,pid,r, b,proc,r, c,addr,r
+              printf "%s%-8s%s %s%-18s%s %s%s%s\n", g, pid, r, b, proc, r, c, laddr, r;
             }
           }
         }' <<< "$out"
