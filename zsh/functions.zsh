@@ -132,7 +132,7 @@ EOF
         out="$(sudo -n ss "${ss_flags[@]}" 2>/dev/null)"
       fi
 
-      awk -v wp="$want_port" -v g="$GREEN" -v b="$BLUE" -v c="$CYAN" -v r="$RESET" -v det="$details" '
+      echo "$out" | awk -v wp="$want_port" -v g="$GREEN" -v b="$BLUE" -v c="$CYAN" -v r="$RESET" -v det="$details" '
         {
           proto=tolower($1); state=($2==""?"":$2); laddr=$5; pid="-"; proc="-";
           if (match($0, /users:\(\("([^"]+)",pid=([0-9]+)/, M)) { proc=M[1]; pid=M[2]; }
@@ -145,10 +145,10 @@ EOF
             if (det==1) {
               printf "%s%-8s%s %s%-18s%s %s%-5s%s %s%-12s%s %s%s%s\n", g, pid, r, b, proc, r, c, proto, r, c, state, r, c, laddr, r;
             } else {
-              printf "%s%-8s%s %s%-18s%s %s%s%s\n", g, pid, r, b, proc, r, c, laddr, r;
+              printf "%s%-8s%s %s%-18s%s %s%s%s\n", g, pid, r, b, proc, r, c, addr, r;
             }
           }
-        }' <<< "$out"
+        }'
     fi
   fi
 }
